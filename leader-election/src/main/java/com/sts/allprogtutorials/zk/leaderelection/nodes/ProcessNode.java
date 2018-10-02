@@ -13,6 +13,7 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
 import com.sts.allprogtutorials.zk.utils.ZooKeeperService;
+import java.net.InetAddress;
 
 /**
  * @author Sain Technology Solutions
@@ -23,7 +24,8 @@ public class ProcessNode implements Runnable{
 	private static final Logger LOG = Logger.getLogger(ProcessNode.class);
 	
 	private static final String LEADER_ELECTION_ROOT_NODE = "/election";
-	private static final String PROCESS_NODE_PREFIX = "/p_";
+	
+	private static  String PROCESS_NODE_PREFIX;
 	
 	private final int id;
 	private final ZooKeeperService zooKeeperService;
@@ -34,6 +36,7 @@ public class ProcessNode implements Runnable{
 	
 	public ProcessNode(final int id, final String zkURL) throws IOException {
 		this.id = id;
+		PROCESS_NODE_PREFIX = InetAddress.getLocalHost().getHostName() + "_";
 		zooKeeperService = new ZooKeeperService(zkURL, new ProcessNodeWatcher());
 	}
 	
