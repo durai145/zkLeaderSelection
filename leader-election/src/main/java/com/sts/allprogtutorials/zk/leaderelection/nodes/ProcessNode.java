@@ -43,6 +43,7 @@ public class ProcessNode implements Runnable{
 		final List<String> childNodePaths = zooKeeperService.getChildren(LEADER_ELECTION_ROOT_NODE, false);
 		
 		Collections.sort(childNodePaths);
+		LOG.error("processNodePath = " + childNodePaths);
 		
 		int index = childNodePaths.indexOf(processNodePath.substring(processNodePath.lastIndexOf('/') + 1));
 		if(index == 0) {
