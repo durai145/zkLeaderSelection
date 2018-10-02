@@ -36,7 +36,7 @@ public class ProcessNode implements Runnable{
 	
 	public ProcessNode(final int id, final String zkURL) throws IOException {
 		this.id = id;
-		PROCESS_NODE_PREFIX = InetAddress.getLocalHost().getHostName() + "_";
+		PROCESS_NODE_PREFIX = "/"+ InetAddress.getLocalHost().getHostName() + "_";
 		zooKeeperService = new ZooKeeperService(zkURL, new ProcessNodeWatcher());
 	}
 	
