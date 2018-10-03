@@ -38,7 +38,9 @@ public class StaticNodeSetup {
 				String zNodPath = strArray[0];
 				List<String> allRootPath = parseZNodePath(zNodPath);
 				// checkNode is exit
+				System.out.println("allRootPath = " + allRootPath);
 				allRootPath.forEach(node -> {
+					
 					checkZNodeORCreate(node);
 				});
 				zooKeeper.create(strArray[0], strArray[1].getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -59,6 +61,7 @@ public class StaticNodeSetup {
 
 	private static void checkZNodeORCreate(String node) {
 		try {
+			System.out.println("checkZNodeORCreate::Node :: " + node);
 			Stat nodeStat = zooKeeper.exists(node, false);
 			System.out.println("Nodestat :: " + nodeStat);
 			if (nodeStat == null) {
