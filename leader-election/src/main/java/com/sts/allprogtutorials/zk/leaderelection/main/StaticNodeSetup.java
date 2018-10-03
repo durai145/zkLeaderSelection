@@ -43,7 +43,7 @@ public class StaticNodeSetup {
 
 					checkZNodeORCreate(node);
 				});
-				zooKeeper.create(strArray[0], strArray[1].getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				zooKeeper.setData(zNodPath,strArray[1].getBytes(), 0);
 			}
 
 		} catch (IOException e) {
