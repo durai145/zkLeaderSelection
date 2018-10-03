@@ -40,7 +40,7 @@ public class StaticNodeSetup {
 				// checkNode is exit
 				System.out.println("allRootPath = " + allRootPath);
 				allRootPath.forEach(node -> {
-					
+
 					checkZNodeORCreate(node);
 				});
 				zooKeeper.create(strArray[0], strArray[1].getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -66,9 +66,9 @@ public class StaticNodeSetup {
 			System.out.println("Nodestat :: " + nodeStat);
 			if (nodeStat == null) {
 				String nodePath = zooKeeper.create(node, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-				System.out.println("NodePath Created = "+ nodePath);
+				System.out.println("NodePath Created = " + nodePath);
 			}
-				
+
 		} catch (KeeperException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,8 +84,10 @@ public class StaticNodeSetup {
 		String[] dirs = zNodPath.split("/");
 		String parent = "";
 		for (String dir : dirs) {
-			parent = parent + PATH_SEPRATOR + dir;
-			nodes.add(parent);
+			if (dir != null && !dir.isEmpty()) {
+				parent = parent + PATH_SEPRATOR + dir;
+				nodes.add(parent);
+			}
 		}
 		return nodes;
 	}
