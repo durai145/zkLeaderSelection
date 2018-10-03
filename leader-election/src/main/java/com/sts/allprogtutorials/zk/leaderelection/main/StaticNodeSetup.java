@@ -15,22 +15,23 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
 public class StaticNodeSetup {
-
+//"18.210.40.41:2181,35.175.71.81:2181,35.175.71.81:2181"
 	private static final String PATH_SEPRATOR = "/";
 	private static ZooKeeper zooKeeper;
 
 	public static void main(String[] argv) {
 
-		if (argv.length == 0) {
+		if (argv.length < 2) {
 			usage();
 		}
-
-		File file = new File(argv[0]);
+        
+		String url = argv[0];
+		File file = new File(argv[1]);
 		String line = "";
 
 		BufferedReader br;
 		try {
-			zooKeeper = new ZooKeeper("18.210.40.41:2181,35.175.71.81:2181,35.175.71.81:2181", 3000, null);
+			zooKeeper = new ZooKeeper(url, 3000, null);
 
 			br = new BufferedReader(new FileReader(file));
 			while ((line = br.readLine()) != null) {
