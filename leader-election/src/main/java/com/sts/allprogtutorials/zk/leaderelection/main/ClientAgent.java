@@ -69,7 +69,7 @@ public class ClientAgent implements Runnable {
 			String dynamicServerPath = "/dynamic/" + serverName;
 			Stat dynamicNodeStat = zookeeper.exists(dynamicServerPath, false);
 			if (dynamicNodeStat != null) {
-				String path = zookeeper.create(dynamicServerPath + this.hostname, null, Ids.OPEN_ACL_UNSAFE,
+				String path = zookeeper.create(dynamicServerPath + "/" + this.hostname, null, Ids.OPEN_ACL_UNSAFE,
 						CreateMode.EPHEMERAL);
 				if (path != null) {
 					String ClientAppPath = zookeeper.create(path + "/G4CMONITOR", null, Ids.OPEN_ACL_UNSAFE,
