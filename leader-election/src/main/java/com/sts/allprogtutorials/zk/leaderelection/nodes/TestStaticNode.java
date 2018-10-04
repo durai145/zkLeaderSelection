@@ -29,12 +29,12 @@ public class TestStaticNode {
 		staticNodes.forEach(zpath -> {
 			try {
 				System.out.println("Node:: " + zpath);
-				//byte[] data = zooKeeperService.getZooKeeper().getData(zpath, false, null);
-				//String strData = new String(data);
-				//System.out.println("Node:: " + strData);
-				//ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
-				//System.out.println("zconfigNodeData:: " + zConfigData);
-				//staticConfig.add(zConfigData);
+				byte[] data = zooKeeperService.getZooKeeper().getData("/static/" + zpath, false, null);
+				String strData = new String(data);
+				System.out.println("Node:: " + strData);
+				ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
+				System.out.println("zconfigNodeData:: " + zConfigData);
+				staticConfig.add(zConfigData);
 
 			} catch (Exception e) {
 				throw new IllegalStateException("Exception in getStaticNodeList::  " + e);
