@@ -20,16 +20,18 @@ public class ClientAgent implements Runnable {
 	String hostname;
 	private static final String ELECTED_SERVER_PATH = "/election/server";
 	private String myCurrentDynamicNodePath;
-	Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+	static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
 	public ClientAgent(String url) {
 		InetAddress ip;
 		try {
 			ip = InetAddress.getLocalHost();
 			this.hostname = ip.getHostName();
+			System.out.println("hostname :: " + this.hostname);
 			try {
-				zookeeper = new ZooKeeper(url, 3000, null);
-				findAndCreateZnode();
+				    zookeeper = new ZooKeeper(url, 3000, null);
+				    
+				    findAndCreateZnode();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -42,11 +44,12 @@ public class ClientAgent implements Runnable {
 
 	public boolean findAndCreateZnode() {
 		Stat parentStat;
+		boolean exists = false;
 		try {
 
 			// checkServer is up
 			String serverName = checkServer();
-			boolean exists = false;
+			
 			parentStat = zookeeper.exists("/static", false);
 			if (parentStat != null) {
 				List<String> children = zookeeper.getChildren("/static", false);
@@ -54,6 +57,7 @@ public class ClientAgent implements Runnable {
 					System.out.println("Child :: " + child);
 					exists = child.equals(this.hostname);
 					if (exists) {
+						System.out.println("Found the node with hostname:: " + this.hostname);
 						createDynamicName(serverName);
 						break;
 					}
@@ -71,7 +75,7 @@ public class ClientAgent implements Runnable {
 							+ e);
 		}
 
-		return false;
+		return exists;
 	}
 
 	private void createDynamicName(String serverName) throws KeeperException {
@@ -148,6 +152,7 @@ public class ClientAgent implements Runnable {
 	public void run() {
 		while (true) {
 			if (this.myCurrentDynamicNodePath != null) {
+				System.out.println("myCurrentDynamicNodePath" + myCurrentDynamicNodePath);
 				try {
 					int waitTime = 5;
 					ConfigData clientData = readClientData(this.myCurrentDynamicNodePath);
