@@ -149,10 +149,18 @@ public class ProcessNode implements Runnable {
 					ConfigData newConfigData = getDeadClientData(newClient);//getClientData
 					List<ConfigData> runningConfigs= getRunningNodeList();
 					List<ConfigData> staticConfig = getStaticNodeList();
-					//"/staict/client/app/qid"
+					//"/static/client/app/qid"
 					//"/dynamic/client/app/qid"
 					staticConfig.forEach(znodePath -> {
-						if (znodePath.equals(newConfigData.getZnodePath())) {//fix client name
+						
+						int index = znodePath.toString().indexOf("/", 1);
+						String strZnode = znodePath.toString().substring(index);
+						
+						index = newConfigData.getZnodePath().toString().indexOf("/",1);
+						String strNewZnodePath = newConfigData.getZnodePath().toString().substring(index);
+						
+						
+						if (strZnode.equals(strNewZnodePath)) {//fix client name
 							// node matches then find the queue id's supposed to be assigned to this node
 							for (ConfigData node : runningConfigs) {
 								
