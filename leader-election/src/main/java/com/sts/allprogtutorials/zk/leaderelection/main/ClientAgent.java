@@ -45,6 +45,7 @@ public class ClientAgent implements Runnable {
 			if (parentStat != null) {
 				List<String> children = zookeeper.getChildren("/static", false);
 				for(String child : children) {
+					System.out.println("Child :: " + child);
 					exists = child.equals(this.hostname);
 					if (exists) {
 						createDynamicName(serverName);
