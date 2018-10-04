@@ -14,11 +14,15 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class StaticNodeSetup {
 //"18.210.40.41:2181,35.175.71.81:2181,35.175.71.81:2181"
 	private static final String PATH_SEPRATOR = "/";
 	private static ZooKeeper zooKeeper;
-
+	static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 	public static void main(String[] argv) {
 
 		if (argv.length < 2) {
@@ -41,12 +45,16 @@ public class StaticNodeSetup {
 				List<String> allRootPath = parseZNodePath(zNodPath);
 				// checkNode is exit
 				System.out.println("allRootPath = " + allRootPath);
+				 
+				ConfigData nodeConfigData = gson.fromJson(strArray[1], ConfigData.class);				
+				
 				allRootPath.forEach(node -> {
 
 					checkZNodeORCreate(node);
 				});
 				Stat nodeStat = zooKeeper.exists(zNodPath, false);
-				zooKeeper.setData(zNodPath,strArray[1].getBytes(), nodeStat.getVersion());
+				
+				zooKeeper.setData(zNodPath,gson.toJson(nodeConfigData).getBytes(), nodeStat.getVersion());
 			}
 			br.close();
 		} catch (IOException e) {
