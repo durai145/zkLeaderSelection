@@ -182,11 +182,20 @@ public class ClientAgent implements Runnable {
 	}
 
 	public static void main(String argv[]) {
+		System.out.println("Inside Main::ClientAgent ");
+		if (argv.length < 1) {
+			usage();
+		} else {
+			String url = argv[0];
+			ClientAgent client = new ClientAgent(url);
+			Thread t = new Thread(client);
+			t.start();
+		}
 
-		String url = argv[0];
-		ClientAgent client = new ClientAgent(url);
-		Thread t = new Thread(client);
-		t.start();
+	}
+
+	private static void usage() {
+		System.out.println("ClientAgent <IPaddress:port list> ");
 
 	}
 }
