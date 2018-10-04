@@ -11,11 +11,16 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.Stat;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class ClientAgent implements Runnable {
 	ZooKeeper zookeeper;
 	String hostname;
 	private static final String ELECTED_SERVER_PATH = "/election/server";
 	private String myCurrentDynamicNodePath;
+	Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
 	public ClientAgent(String url) {
 		InetAddress ip;
@@ -31,7 +36,7 @@ public class ClientAgent implements Runnable {
 		} catch (UnknownHostException e) {
 			System.out.println("Unable to fetch hostname for the current Client system");
 			e.printStackTrace();
-					
+
 		}
 	}
 
@@ -45,7 +50,7 @@ public class ClientAgent implements Runnable {
 			parentStat = zookeeper.exists("/static", false);
 			if (parentStat != null) {
 				List<String> children = zookeeper.getChildren("/static", false);
-				for(String child : children) {
+				for (String child : children) {
 					System.out.println("Child :: " + child);
 					exists = child.equals(this.hostname);
 					if (exists) {
@@ -61,7 +66,9 @@ public class ClientAgent implements Runnable {
 		} catch (KeeperException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new IllegalStateException("ClientAgent::findAndCreateZnode error while creating dynamic config from static config for clientNodes" + e);
+			throw new IllegalStateException(
+					"ClientAgent::findAndCreateZnode error while creating dynamic config from static config for clientNodes"
+							+ e);
 		}
 
 		return false;
@@ -111,8 +118,9 @@ public class ClientAgent implements Runnable {
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			throw new IllegalStateException("ClientAgent::createDynamicName:: Exception while creating Dynamic zNode under" + serverName);
-			
+			throw new IllegalStateException(
+					"ClientAgent::createDynamicName:: Exception while creating Dynamic zNode under" + serverName);
+
 		}
 
 	}
@@ -130,7 +138,8 @@ public class ClientAgent implements Runnable {
 			return new String(serverName);
 		} catch (KeeperException | InterruptedException e) {
 			e.printStackTrace();
-			throw new IllegalStateException("ClientAgent::checkServer:: Exception while getting data for zNode"+ ELECTED_SERVER_PATH + e);
+			throw new IllegalStateException(
+					"ClientAgent::checkServer:: Exception while getting data for zNode" + ELECTED_SERVER_PATH + e);
 		}
 
 	}
@@ -139,19 +148,36 @@ public class ClientAgent implements Runnable {
 	public void run() {
 		while (true) {
 			if (this.myCurrentDynamicNodePath != null) {
-				Stat stat = null;
-				byte[] data;
 				try {
-					data = this.zookeeper.getData(this.myCurrentDynamicNodePath, true, stat);
-					System.out.println("Client " + this.hostname + "Processing Queues " + data.toString());
+					int waitTime = 5;
+					ConfigData clientData = readClientData(this.myCurrentDynamicNodePath);
+					if (clientData != null) {
+						waitTime = clientData.getWaitTime();
+						System.out.println("Client " + this.hostname + "Processing Queues " + clientData.getQueueIds());
+					}
+					wait(waitTime);
 				} catch (KeeperException | InterruptedException e) {
-					throw new IllegalStateException("Exception in run:: unable to getData for " + this.myCurrentDynamicNodePath);
+					throw new IllegalStateException(
+							"Exception in run:: unable to getData for " + this.myCurrentDynamicNodePath);
 				}
 
 			}
 
 		}
-		
+
+	}
+
+	public ConfigData readClientData(String dataClientPath) throws KeeperException, InterruptedException {
+		byte[] data;
+
+		try {
+			data = zookeeper.getData(dataClientPath, false, null);
+			String strData = new String(data);
+			ConfigData nodeConfigData = gson.fromJson(strData, ConfigData.class);
+			return nodeConfigData;
+		} catch (KeeperException | InterruptedException e) {
+			throw new IllegalStateException("Exception in readDataFromNode::  " + e);
+		}
 
 	}
 

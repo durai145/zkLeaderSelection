@@ -136,7 +136,7 @@ public class ProcessNode implements Runnable {
 					String deadClient = event.getPath();
 					
 					try {
-						ConfigData deadConfigData = getDeadClientData(deadClient);
+						ConfigData deadConfigData = getClientData(deadClient);
 						List<ConfigData> runningConfigs= getRunningNodeList();
 						
 						deadConfigData.getQueueIds().forEach(queueId -> {
@@ -163,7 +163,7 @@ public class ProcessNode implements Runnable {
 				String newClient = event.getPath();				
 				try {
 					
-					ConfigData newConfigData = getDeadClientData(newClient);//getClientData
+					ConfigData newConfigData = getClientData(newClient);//getClientData
 					List<ConfigData> runningConfigs= getRunningNodeList();
 					List<ConfigData> staticConfig = getStaticNodeList();
 					//"/static/client/app/qid"
@@ -260,13 +260,13 @@ public class ProcessNode implements Runnable {
 			return runningConfig;
 		}
 
-		private ConfigData getDeadClientData(String deadClient) throws KeeperException, InterruptedException {
+		private ConfigData getClientData(String deadClient) throws KeeperException, InterruptedException {
 
 			String dataClientPath = DATA_PATH + deadClient;
 			return readDataFromNode(dataClientPath);
 		}
 
-		private ConfigData readDataFromNode(String dataClientPath) throws KeeperException, InterruptedException {
+		public ConfigData readDataFromNode(String dataClientPath) throws KeeperException, InterruptedException {
 			byte[] data;
 
 			try {
