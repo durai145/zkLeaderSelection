@@ -81,7 +81,7 @@ public class ClientAgent implements Runnable {
 						if (nodeStat == null) {
 
 							// get data from static config
-							String staticNodePath = "/static/" + this.hostname + "/G4CMONITOR/INSTQID";
+							String staticNodePath = "/static/" + this.hostname + "/" + "G4CMONITOR" + "/" + "INSTQID";
 							Stat staticNodestat = null;
 							byte[] data = zookeeper.getData(staticNodePath, false, staticNodestat);
 							String QueuePath;
