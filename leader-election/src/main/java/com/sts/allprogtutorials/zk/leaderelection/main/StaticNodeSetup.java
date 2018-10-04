@@ -45,7 +45,9 @@ public class StaticNodeSetup {
 				List<String> allRootPath = parseZNodePath(zNodPath);
 				// checkNode is exit
 				System.out.println("allRootPath = " + allRootPath);
-				 
+				System.out.println("strArray[0] :: " + strArray[0]); 
+				System.out.println("strArray[1] :: " + strArray[1]); 
+				
 				ConfigData nodeConfigData = gson.fromJson(strArray[1], ConfigData.class);				
 				
 				allRootPath.forEach(node -> {
