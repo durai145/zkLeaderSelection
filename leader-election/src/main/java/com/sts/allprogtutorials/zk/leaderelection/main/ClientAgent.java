@@ -29,8 +29,9 @@ public class ClientAgent implements Runnable {
 				e.printStackTrace();
 			}
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Unable to fetch hostname for the current Client system");
 			e.printStackTrace();
+					
 		}
 	}
 
@@ -60,6 +61,7 @@ public class ClientAgent implements Runnable {
 		} catch (KeeperException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new IllegalStateException("ClientAgent::findAndCreateZnode error while creating dynamic config from static config for clientNodes" + e);
 		}
 
 		return false;
@@ -67,7 +69,7 @@ public class ClientAgent implements Runnable {
 
 	private void createDynamicName(String serverName) throws KeeperException {
 		try {
-			String dynamicServerPath = "/dynamic/" + serverName;
+			String dynamicServerPath = "/dynamic" + "/" + serverName;
 			Stat dynamicNodeStat = zookeeper.exists(dynamicServerPath, false);
 			if (dynamicNodeStat != null) {
 				String path = zookeeper.create(dynamicServerPath + "/" + this.hostname, null, Ids.OPEN_ACL_UNSAFE,
@@ -108,8 +110,9 @@ public class ClientAgent implements Runnable {
 				System.out.println(" Znode = " + dynamicServerPath + "doesn't exist");
 			}
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new IllegalStateException("ClientAgent::createDynamicName:: Exception while creating Dynamic zNode under" + serverName);
+			
 		}
 
 	}
@@ -125,14 +128,9 @@ public class ClientAgent implements Runnable {
 			}
 
 			return new String(serverName);
-		} catch (KeeperException e) {
-			// TODO Auto-generated catch block
+		} catch (KeeperException | InterruptedException e) {
 			e.printStackTrace();
-			throw e;
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw e;
+			throw new IllegalStateException("ClientAgent::checkServer:: Exception while getting data for zNode"+ ELECTED_SERVER_PATH + e);
 		}
 
 	}
@@ -146,18 +144,14 @@ public class ClientAgent implements Runnable {
 				try {
 					data = this.zookeeper.getData(this.myCurrentDynamicNodePath, true, stat);
 					System.out.println("Client " + this.hostname + "Processing Queues " + data.toString());
-				} catch (KeeperException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (KeeperException | InterruptedException e) {
+					throw new IllegalStateException("Exception in run:: unable to getData for " + this.myCurrentDynamicNodePath);
 				}
 
 			}
 
 		}
-		// TODO Auto-generated method stub
+		
 
 	}
 

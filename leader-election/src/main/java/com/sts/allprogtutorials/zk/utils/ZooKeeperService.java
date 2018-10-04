@@ -47,7 +47,7 @@ public class ZooKeeperService {
 			}
 			
 		} catch (KeeperException | InterruptedException e) {
-			throw new IllegalStateException(e);
+			throw new IllegalStateException("Exception in ZooKeeperService::createNode " + e);
 		}
 		
 		return createdNodePath;
@@ -64,7 +64,7 @@ public class ZooKeeperService {
 			}
 			
 		} catch (KeeperException | InterruptedException e) {
-			throw new IllegalStateException(e);
+			throw new IllegalStateException("Exception in ZooKeeperService::watchNode " + e);
 		}
 		
 		return watched;
@@ -77,10 +77,28 @@ public class ZooKeeperService {
 		try {
 			childNodes = zooKeeper.getChildren(node, watch);
 		} catch (KeeperException | InterruptedException e) {
-			throw new IllegalStateException(e);
+			throw new IllegalStateException("Exception in ZooKeeperService::getChildren " + e);
 		}
 		
 		return childNodes;
+	}
+
+	public String setNodeData(String nodePath, String data) {
+		
+		try {
+			final Stat stat = zooKeeper.exists(nodePath,false);
+			if(stat != null)
+			{
+				zooKeeper.setData(nodePath, data.getBytes(), stat.getVersion());
+			}
+			else {
+				data =  "";
+			}
+		} catch (KeeperException | InterruptedException e) {
+			throw new IllegalStateException("Exception in ZooKeeperService::setNodeData " + e);
+		}
+		return data;
+		
 	}
 	
 }

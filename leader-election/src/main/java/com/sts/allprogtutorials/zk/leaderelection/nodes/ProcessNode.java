@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import com.sts.allprogtutorials.zk.leaderelection.main.ConfigData;
 import com.sts.allprogtutorials.zk.utils.ZooKeeperService;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * @author Sain Technology Solutions
@@ -33,7 +34,7 @@ public class ProcessNode implements Runnable {
 
 	private static final String LEADER_ELECTION_ROOT_NODE = "/election";
 	private static final String PROCESS_NODE_PREFIX = "/p_";
-
+	private static final String ELECTED_SERVER_LEADER_NODE_PATH = "/election/server";
 	private final int id;
 	private final ZooKeeperService zooKeeperService;
 
@@ -55,9 +56,28 @@ public class ProcessNode implements Runnable {
 		LOG.error("processNodePath = " + childNodePaths);
 
 		int index = childNodePaths.indexOf(processNodePath.substring(processNodePath.lastIndexOf('/') + 1));
-		if (index == 0) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("[Process: " + id + "] I am the new leader!");
+		if(index == 0) {
+			if(LOG.isInfoEnabled()) {
+				InetAddress ip;
+				try {
+					ip = InetAddress.getLocalHost();
+					String hostName = ip.getHostName();
+					final String ServerLeaderNodePath = zooKeeperService.createNode(ELECTED_SERVER_LEADER_NODE_PATH, false, false);
+					LOG.info("[Process: " + id + "with hostName:: " + hostName + "] I am the new leader!");
+					String data = zooKeeperService.setNodeData(ServerLeaderNodePath, hostName);
+					if (data != hostName)
+					{
+						System.out.println("Error in setting the data for zNode" + ServerLeaderNodePath);
+					}
+					else
+					{
+						System.out.println("Data for zNode" + ServerLeaderNodePath + "set successfully to " + data);
+					}
+					
+				} catch (UnknownHostException e) {
+					System.out.println("attemptForLeaderPosition:: unable to retrieve Hostname");
+					e.printStackTrace();
+				}
 			}
 		} else {
 			final String watchedNodeShortPath = childNodePaths.get(index - 1);
@@ -79,15 +99,13 @@ public class ProcessNode implements Runnable {
 		}
 
 		final String rootNodePath = zooKeeperService.createNode(LEADER_ELECTION_ROOT_NODE, false, false);
-		if (rootNodePath == null) {
-			throw new IllegalStateException(
-					"Unable to create/access leader election root node with path: " + LEADER_ELECTION_ROOT_NODE);
+		if(rootNodePath == null) {
+			throw new IllegalStateException("Unable to create/access leader election root node with path: " + LEADER_ELECTION_ROOT_NODE);
 		}
 
 		processNodePath = zooKeeperService.createNode(rootNodePath + PROCESS_NODE_PREFIX, false, true);
-		if (processNodePath == null) {
-			throw new IllegalStateException(
-					"Unable to create/access process node with path: " + LEADER_ELECTION_ROOT_NODE);
+		if(processNodePath == null) {
+			throw new IllegalStateException("Unable to create/access process node with path: " + LEADER_ELECTION_ROOT_NODE);
 		}
 
 		if (LOG.isDebugEnabled()) {
@@ -130,12 +148,11 @@ public class ProcessNode implements Runnable {
 							}
 							
 						});
-					} catch (KeeperException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} catch (KeeperException | InterruptedException e) {
+						
+						//System.out.println("Exeption in handling deadClientData when Client Died");
+						throw new IllegalStateException("Exeption in handling deadClientData when Client Died" + e);
+						
 					}
 					
 					
@@ -174,12 +191,8 @@ public class ProcessNode implements Runnable {
 							}
 						}
 					});
-				} catch (KeeperException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (KeeperException | InterruptedException e) {
+				     throw new IllegalStateException("Exception ProcessNodeWatcher:: in handling NodeCreated Event" + e);
 				}			
 			}
 		} // End
@@ -190,8 +203,7 @@ public class ProcessNode implements Runnable {
 			try {
 				zooKeeperService.getZooKeeper().setData(node.getZnodePath(), gson.toJson(node).getBytes(), node.getStat().getVersion());
 			} catch (KeeperException | InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			    throw new IllegalStateException("Exception in deleteQId::  " + e);
 			}
 
 		}
@@ -202,8 +214,7 @@ public class ProcessNode implements Runnable {
 			try {
 				zooKeeperService.getZooKeeper().setData(node.getZnodePath(), gson.toJson(node).getBytes(), node.getStat().getVersion());
 			} catch (KeeperException | InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new IllegalStateException("Exception in assignQueueId::  " + e);
 			}
 
 		}
@@ -219,12 +230,8 @@ public class ProcessNode implements Runnable {
 					ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
 					staticConfig.add(zConfigData);
 
-				} catch (KeeperException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (KeeperException | InterruptedException e) {
+					throw new IllegalStateException("Exception in getStaticNodeList::  " + e);
 				}
 			});
 
@@ -245,12 +252,8 @@ public class ProcessNode implements Runnable {
 					zConfigData.setStat(stat);
 					runningConfig.add(zConfigData);
 
-				} catch (KeeperException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (KeeperException | InterruptedException e) {
+					throw new IllegalStateException("Exception in getRunningNodeList::  " + e);
 				}
 			});
 
@@ -271,14 +274,8 @@ public class ProcessNode implements Runnable {
 				String strData = new String(data);
 				ConfigData nodeConfigData = gson.fromJson(strData, ConfigData.class);
 				return nodeConfigData;
-			} catch (KeeperException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				throw e;
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				throw e;
+			} catch (KeeperException | InterruptedException e) {
+				throw new IllegalStateException("Exception in readDataFromNode::  " + e);
 			}
 
 		}

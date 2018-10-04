@@ -29,8 +29,9 @@ public class StaticNodeSetup {
 		File file = new File(argv[1]);
 		String line = "";
 
-		BufferedReader br;
+		
 		try {
+			BufferedReader br;
 			zooKeeper = new ZooKeeper(url, 3000, null);
 
 			br = new BufferedReader(new FileReader(file));
@@ -47,17 +48,15 @@ public class StaticNodeSetup {
 				Stat nodeStat = zooKeeper.exists(zNodPath, false);
 				zooKeeper.setData(zNodPath,strArray[1].getBytes(), nodeStat.getVersion());
 			}
-
+			br.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
+		    e.printStackTrace();
+			throw new IllegalStateException("Error while reading " + file + e);
+		} catch (KeeperException | InterruptedException e) {
 			e.printStackTrace();
-		} catch (KeeperException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			throw new IllegalStateException("StaticNodeSetup:: Exception in main()" + e);
+		} 
 
 	}
 
@@ -95,7 +94,7 @@ public class StaticNodeSetup {
 	}
 
 	private static void usage() {
-		System.out.println("StaticNodeSetup <url> <filename> ");
+		System.out.println("StaticNodeSetup <IPaddress:port list> <filename> ");
 
 	}
 }
