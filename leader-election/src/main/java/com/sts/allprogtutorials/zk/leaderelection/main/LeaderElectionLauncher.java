@@ -13,10 +13,6 @@ import org.apache.log4j.Logger;
 
 import com.sts.allprogtutorials.zk.leaderelection.nodes.ProcessNode;
 
-/**
- * @author Sain Technology Solutions
- *
- */
 public class LeaderElectionLauncher {
 	
 	private static final Logger LOG = Logger.getLogger(LeaderElectionLauncher.class);

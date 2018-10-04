@@ -22,6 +22,14 @@ public class ZooKeeperService {
 	
 	private ZooKeeper zooKeeper;
 	
+	public ZooKeeper getZooKeeper() {
+		return zooKeeper;
+	}
+
+	public void setZooKeeper(ZooKeeper zooKeeper) {
+		this.zooKeeper = zooKeeper;
+	}
+
 	public ZooKeeperService(final String url, final ProcessNodeWatcher processNodeWatcher) throws IOException {
 		zooKeeper = new ZooKeeper(url, 3000, processNodeWatcher);
 	}
