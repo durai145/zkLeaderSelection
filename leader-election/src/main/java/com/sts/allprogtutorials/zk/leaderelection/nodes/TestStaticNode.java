@@ -28,14 +28,15 @@ public class TestStaticNode {
 		List<ConfigData> staticConfig = new ArrayList<>();
 		staticNodes.forEach(zpath -> {
 			try {
-				byte[] data = zooKeeperService.getZooKeeper().getData(zpath, false, null);
-				String strData = new String(data);
-				System.out.println("Node:: " + strData);
-				ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
-				System.out.println("zconfigNodeData:: " + zConfigData);
-				staticConfig.add(zConfigData);
+				System.out.println("Node:: " + zpath);
+				//byte[] data = zooKeeperService.getZooKeeper().getData(zpath, false, null);
+				//String strData = new String(data);
+				//System.out.println("Node:: " + strData);
+				//ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
+				//System.out.println("zconfigNodeData:: " + zConfigData);
+				//staticConfig.add(zConfigData);
 
-			} catch (KeeperException | InterruptedException e) {
+			} catch (Exception e) {
 				throw new IllegalStateException("Exception in getStaticNodeList::  " + e);
 			}
 		});
