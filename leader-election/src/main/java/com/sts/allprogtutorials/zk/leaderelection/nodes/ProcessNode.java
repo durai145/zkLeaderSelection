@@ -9,10 +9,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
@@ -74,21 +76,32 @@ public class ProcessNode implements Runnable {
 					{
 						System.out.println("Data for zNode" + ServerLeaderNodePath + "set successfully to " + data);
 					}
-					String dynamicServerLeaderPath = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/" + hostName;
-					final String path = zooKeeperService.createNode(dynamicServerLeaderPath, false, false);
-					if (path != null)
+					final String dynamicPath = zooKeeperService.createNode(ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH, false, false);
+					if (dynamicPath == ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH)
 					{
-						System.out.println("Error in Creating the zNode" + dynamicServerLeaderPath);
-					}
-					else
-					{
-						System.out.println("Failed to create zNode" + dynamicServerLeaderPath);
-					}
+						String path = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/" + hostName;
+						final String dynamicServerLeaderPath = zooKeeperService.getZooKeeper().create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 					
+						if (dynamicServerLeaderPath != null)
+						{
+							System.out.println("Created the zNode " + dynamicServerLeaderPath);
+						}
+						else
+						{
+							System.out.println("Failed to create zNode " + dynamicServerLeaderPath);
+						}
+					}
+					else {
+						System.out.println("attemptForLeaderPosition:: unable to create znode " + ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH);
+					}
 				} catch (UnknownHostException e) {
 					System.out.println("attemptForLeaderPosition:: unable to retrieve Hostname");
 					e.printStackTrace();
+				}catch(InterruptedException | KeeperException e) {
+					System.out.println("attemptForLeaderPosition:: Keeper Exception");
+					e.printStackTrace();
 				}
+				
 			}
 		} else {
 			final String watchedNodeShortPath = childNodePaths.get(index - 1);
