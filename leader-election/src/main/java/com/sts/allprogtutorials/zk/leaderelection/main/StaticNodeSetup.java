@@ -44,7 +44,8 @@ public class StaticNodeSetup {
 
 					checkZNodeORCreate(node);
 				});
-				zooKeeper.setData(zNodPath,strArray[1].getBytes(), 0);
+				Stat nodeStat = zooKeeper.exists(zNodPath, false);
+				zooKeeper.setData(zNodPath,strArray[1].getBytes(), nodeStat.getVersion());
 			}
 
 		} catch (IOException e) {
