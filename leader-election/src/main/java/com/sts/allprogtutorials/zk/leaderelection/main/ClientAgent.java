@@ -119,7 +119,7 @@ public class ClientAgent implements Runnable {
 		byte[] serverName = null;
 		Stat serverStat;
 		try {
-			serverStat = zookeeper.exists(ELECTED_SERVER_PATH, true);
+			serverStat = zookeeper.exists(ELECTED_SERVER_PATH, false);
 			if (serverStat != null) {
 				serverName = zookeeper.getData(ELECTED_SERVER_PATH, true, serverStat);
 			}
