@@ -95,7 +95,7 @@ public class StaticNodeSetup {
 	}
 
 	private static void usage() {
-		System.out.println("StaticNodeSetup <filename>");
+		System.out.println("StaticNodeSetup <url> <filename> ");
 
 	}
 }
