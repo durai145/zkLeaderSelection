@@ -4,6 +4,7 @@
 package com.sts.allprogtutorials.zk.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.zookeeper.CreateMode;
@@ -21,7 +22,7 @@ import com.sts.allprogtutorials.zk.leaderelection.nodes.ProcessNode.ProcessNodeW
 public class ZooKeeperService {
 	
 	private ZooKeeper zooKeeper;
-	
+	public static final String PATH_SEPRATOR = "/";
 	public ZooKeeper getZooKeeper() {
 		return zooKeeper;
 	}
@@ -100,5 +101,35 @@ public class ZooKeeperService {
 		return data;
 		
 	}
-	
+	public List<String> parseZNodePath(String zNodPath) {
+		List<String> nodes = new ArrayList<>();
+		String[] dirs = zNodPath.split("/");
+		String parent = "";
+		for (String dir : dirs) {
+			if (dir != null && !dir.isEmpty()) {
+				parent = parent + PATH_SEPRATOR + dir;
+				nodes.add(parent);
+			}
+		}
+		return nodes;
+	}
+	public void checkZNodeORCreate(String node) {
+		try {
+			System.out.println("checkZNodeORCreate::Node :: " + node);
+			Stat nodeStat = zooKeeper.exists(node, false);
+			System.out.println("Nodestat :: " + nodeStat);
+			if (nodeStat == null) {
+				String nodePath = zooKeeper.create(node, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				System.out.println("NodePath Created = " + nodePath);
+			}
+
+		} catch (KeeperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 }

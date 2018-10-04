@@ -11,7 +11,11 @@ public class ConfigData {
 	int maxQueueSize ;
 	String znodePath;
 	Stat stat;
+	zNodeInfo znode;
 	
+	public zNodeInfo getZnode() {
+		return znode;
+	}
 	public Stat getStat() {
 		return stat;
 	}
@@ -23,6 +27,11 @@ public class ConfigData {
 	}
 	public void setZnodePath(String znodePath) {
 		this.znodePath = znodePath;
+		if(znodePath != null)
+		{
+		   String[] nodes = znodePath.split("/");
+		   znode= new zNodeInfo(nodes[1],nodes[2],nodes[3]);
+		}
 	}
 	public int getWaitTime() {
 		return waitTime;
@@ -43,6 +52,55 @@ public class ConfigData {
 	public void setMaxQueueSize(int maxQueueSize) {
 		this.maxQueueSize = maxQueueSize;
 	}
+	
+	public static class zNodeInfo {
+		public zNodeInfo(String type, String app, String host) {
+			this.app = app;
+			this.host = host;
+			this.type = type;
+		}
+		String app;
+		String host;
+		String type;
+		public String getApp() {
+			return app;
+		}
+		public void setApp(String app) {
+			this.app = app;
+		}
+		public String getHost() {
+			return host;
+		}
+		public void setHost(String host) {
+			this.host = host;
+		}
+		public String getType() {
+			return type;
+		}
+		public void setType(String type) {
+			this.type = type;
+		}
+		
+		public String getPath() {
+			return "/" + this.type + "/" + this.app + "/" + this.host;
+		}
+		
+		public String getStaticPath() {
+			return "/static" + "/" + this.app + "/" + this.host;
+		}
+		public String getDataPath() {
+			return "/data" + "/" + this.app + "/" + this.host;
+		}
+		public String getDynamicPath() {
+			return "/dynamic" + "/" + this.host;
+		}
+		@Override
+		public String toString() {
+			return getPath(); 
+		}
+		
+	}
+	
 	
 	@Override
 	public String toString() {

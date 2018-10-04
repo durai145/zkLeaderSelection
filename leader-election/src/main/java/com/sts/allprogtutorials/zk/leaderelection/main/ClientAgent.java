@@ -14,12 +14,14 @@ import org.apache.zookeeper.data.Stat;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sts.allprogtutorials.zk.leaderelection.main.ConfigData.zNodeInfo;
 
 public class ClientAgent implements Runnable {
 	ZooKeeper zookeeper;
 	String hostname;
 	private static final String ELECTED_SERVER_PATH = "/election/server";
-	private String myCurrentDynamicNodePath;
+	private static final String CLIENT_APP_NAME = "G4CMONITOR";
+	private String myCurrentDataNodePath;
 	static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
 	public ClientAgent(String url) {
@@ -58,13 +60,17 @@ public class ClientAgent implements Runnable {
 					exists = child.equals(this.hostname);
 					if (exists) {
 						System.out.println("Found the node with hostname:: " + this.hostname);
-						createDynamicName(serverName);
+						createDataNode(serverName);
 						break;
 					}
 
 				}
 				if (!exists) {
 					System.out.println("Exiting :: Static config doesnt exist for the host " + this.hostname);
+				}else {
+					byte[] data = null;
+					//now we need to create a dynamic node for this host for the server to watch
+					zookeeper.create("/dynamic" + "/" + this.hostname, data, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 				}
 			}
 		} catch (KeeperException | InterruptedException e) {
@@ -77,49 +83,32 @@ public class ClientAgent implements Runnable {
 
 		return exists;
 	}
-
-	private void createDynamicName(String serverName) throws KeeperException {
+    
+	private void createDataNode(String serverName) throws KeeperException {
 		try {
-			String dynamicServerPath = "/dynamic" + "/" + serverName;
-			Stat dynamicNodeStat = zookeeper.exists(dynamicServerPath, false);
-			if (dynamicNodeStat != null) {
-				String path = zookeeper.create(dynamicServerPath + "/" + this.hostname, null, Ids.OPEN_ACL_UNSAFE,
-						CreateMode.EPHEMERAL);
-				if (path != null) {
-					String ClientAppPath = zookeeper.create(path + "/G4CMONITOR", null, Ids.OPEN_ACL_UNSAFE,
-							CreateMode.EPHEMERAL);
+			zNodeInfo staticNodePath = new ConfigData.zNodeInfo("static", this.hostname, CLIENT_APP_NAME);
+			ConfigData staticConfig = readClientData(staticNodePath.getPath());
+			if (staticConfig != null)
+			{			    
+			    Stat dataNodeStat = zookeeper.exists(staticNodePath.getDataPath(), false);
+			    if (dataNodeStat == null) {
+				    String path = zookeeper.create(staticNodePath.getDataPath(), null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				    if (path != null) {
+					   String ClientAppPath = zookeeper.create(path + this.hostname, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 					if (ClientAppPath != null) {
-						String ClientQueuePath = ClientAppPath + "/" + "INSTQID";
-						Stat nodeStat = zookeeper.exists(ClientQueuePath, false);
-						if (nodeStat == null) {
-
-							// get data from static config
-							String staticNodePath = "/static/" + this.hostname + "/" + "G4CMONITOR" + "/" + "INSTQID";
-							Stat staticNodestat = null;
-							byte[] data = zookeeper.getData(staticNodePath, false, staticNodestat);
-							String QueuePath;
-
-							QueuePath = zookeeper.create(ClientQueuePath, data, Ids.OPEN_ACL_UNSAFE,
-									CreateMode.EPHEMERAL);
-							if (QueuePath == null) {
-								System.out.println("Failed to create Znode = " + QueuePath);
-
-							} else {
-								this.myCurrentDynamicNodePath = QueuePath;
-								System.out.println("Dynamic Client Znode:: " + QueuePath + "created successfully");
-							}
-
+						this.myCurrentDataNodePath = ClientAppPath;
 						}
 					} else {
-						System.out.println("Failed to create Znode = " + path + "/G4CMONITOR");
+						System.out.println("Failed to create Znode = " + path + CLIENT_APP_NAME);
 					}
 
 				} else {
-					System.out.println("Failed to create Znode = " + dynamicServerPath + this.hostname);
+					System.out.println("Failed to create Znode = " + staticNodePath.getDataPath());
 				}
 			} else {
-				System.out.println(" Znode = " + dynamicServerPath + "doesn't exist");
+				System.out.println(" No Static Configuration available for the client " + staticNodePath.getDataPath());
 			}
+		
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			throw new IllegalStateException(
@@ -151,11 +140,11 @@ public class ClientAgent implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-			if (this.myCurrentDynamicNodePath != null) {
-				System.out.println("myCurrentDynamicNodePath" + myCurrentDynamicNodePath);
+			if (this.myCurrentDataNodePath != null) {
+				System.out.println("myCurrentDataNodePath" + myCurrentDataNodePath);
 				try {
 					int waitTime = 5;
-					ConfigData clientData = readClientData(this.myCurrentDynamicNodePath);
+					ConfigData clientData = readClientData(this.myCurrentDataNodePath);
 					if (clientData != null) {
 						waitTime = clientData.getWaitTime();
 						System.out.println("Client " + this.hostname + "Processing Queues " + clientData.getQueueIds());
@@ -163,7 +152,7 @@ public class ClientAgent implements Runnable {
 					wait(waitTime);
 				} catch (KeeperException | InterruptedException e) {
 					throw new IllegalStateException(
-							"Exception in run:: unable to getData for " + this.myCurrentDynamicNodePath);
+							"Exception in run:: unable to getData for " + this.myCurrentDataNodePath);
 				}
 
 			}

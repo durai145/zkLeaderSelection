@@ -38,11 +38,14 @@ public class ProcessNode implements Runnable {
 	private static final String PROCESS_NODE_PREFIX = "/p_";
 	private static final String ELECTED_SERVER_LEADER_NODE_PATH = "/election/server";
 	private static final String ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH = "/dynamic";
+	
+	
 	private final int id;
 	private final ZooKeeperService zooKeeperService;
 
 	private String processNodePath;
 	private String watchedNodePath;
+	private String watchedDynamicNodePath;
 
 	Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
@@ -79,17 +82,8 @@ public class ProcessNode implements Runnable {
 					final String dynamicPath = zooKeeperService.createNode(ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH, false, false);
 					if (dynamicPath == ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH)
 					{
-						String path = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/" + hostName;
-						final String dynamicServerLeaderPath = zooKeeperService.getZooKeeper().create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-					
-						if (dynamicServerLeaderPath != null)
-						{
-							System.out.println("Created the zNode " + dynamicServerLeaderPath);
-						}
-						else
-						{
-							System.out.println("Failed to create zNode " + dynamicServerLeaderPath);
-						}
+					    this.watchedDynamicNodePath = dynamicPath;
+					    zooKeeperService.watchNode(watchedDynamicNodePath, true);
 					}
 					else {
 						System.out.println("attemptForLeaderPosition:: unable to create znode " + ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH);
@@ -97,10 +91,7 @@ public class ProcessNode implements Runnable {
 				} catch (UnknownHostException e) {
 					System.out.println("attemptForLeaderPosition:: unable to retrieve Hostname");
 					e.printStackTrace();
-				}catch(InterruptedException | KeeperException e) {
-					System.out.println("attemptForLeaderPosition:: Keeper Exception");
-					e.printStackTrace();
-				}
+				} 
 				
 			}
 		} else {
@@ -142,17 +133,20 @@ public class ProcessNode implements Runnable {
 	public class ProcessNodeWatcher implements Watcher {
 
 		private static final String DATA_PATH = "/data/";
+		
 
 		@Override
 		public void process(WatchedEvent event) {
 			if(LOG.isDebugEnabled()) {
 				LOG.debug("[Process: " + id + "] Event received: " + event);
+				LOG.debug("EventPath = " + event.getPath());
 			}
 			
 			final EventType eventType = event.getType();
 			if(EventType.NodeDeleted.equals(eventType)) {
 				// Leader died
 				if(event.getPath().equalsIgnoreCase(watchedNodePath)) {
+					
 					attemptForLeaderPosition();
 				} else 
 				{
@@ -236,13 +230,25 @@ public class ProcessNode implements Runnable {
 			node.getQueueIds().add(queueId);
 
 			try {
-				zooKeeperService.getZooKeeper().setData(node.getZnodePath(), gson.toJson(node).getBytes(), node.getStat().getVersion());
+				Stat stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
+				if (stat == null)
+				{
+					List<String> nodeList = zooKeeperService.parseZNodePath(node.getZnode().getDataPath());
+					nodeList.forEach(nodeItem -> {
+
+						zooKeeperService.checkZNodeORCreate(nodeItem);
+					});
+				}
+				else {
+					zooKeeperService.getZooKeeper().setData(node.getZnodePath(), gson.toJson(node).getBytes(), node.getStat().getVersion());	
+				}
+				
 			} catch (KeeperException | InterruptedException e) {
 				throw new IllegalStateException("Exception in assignQueueId::  " + e);
 			}
 
 		}
-
+		
 		public List<ConfigData> getStaticNodeList() {
 
 			List<String> staticNodes = zooKeeperService.getChildren("/static", true);
