@@ -30,7 +30,7 @@ public class ClientAgent implements Runnable {
 			System.out.println("hostname :: " + this.hostname);
 			try {
 				    zookeeper = new ZooKeeper(url, 3000, null);
-				    
+				    System.out.println("Zookeper connection " + zookeeper);   
 				    findAndCreateZnode();
 			} catch (IOException e) {
 				e.printStackTrace();

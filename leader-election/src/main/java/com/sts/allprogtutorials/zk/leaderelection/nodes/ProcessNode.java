@@ -35,6 +35,7 @@ public class ProcessNode implements Runnable {
 	private static final String LEADER_ELECTION_ROOT_NODE = "/election";
 	private static final String PROCESS_NODE_PREFIX = "/p_";
 	private static final String ELECTED_SERVER_LEADER_NODE_PATH = "/election/server";
+	private static final String ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH = "/dynamic";
 	private final int id;
 	private final ZooKeeperService zooKeeperService;
 
@@ -72,6 +73,16 @@ public class ProcessNode implements Runnable {
 					else
 					{
 						System.out.println("Data for zNode" + ServerLeaderNodePath + "set successfully to " + data);
+					}
+					String dynamicServerLeaderPath = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/" + hostName;
+					final String path = zooKeeperService.createNode(dynamicServerLeaderPath, false, false);
+					if (path != null)
+					{
+						System.out.println("Error in Creating the zNode" + dynamicServerLeaderPath);
+					}
+					else
+					{
+						System.out.println("Failed to create zNode" + dynamicServerLeaderPath);
 					}
 					
 				} catch (UnknownHostException e) {
