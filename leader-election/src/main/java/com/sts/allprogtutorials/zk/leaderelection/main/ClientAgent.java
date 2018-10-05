@@ -157,7 +157,7 @@ public class ClientAgent implements Runnable {
 		}
 
 	}
-	private String checkServer() throws KeeperException, InterruptedException {
+	private String checkServer()  {
 
 		byte[] serverName = null;
 		Stat serverStat;
@@ -167,12 +167,13 @@ public class ClientAgent implements Runnable {
 				serverName = zookeeper.getData(ELECTED_SERVER_PATH, true, serverStat);
 			}
 
-			return new String(serverName);
 		} catch (KeeperException | InterruptedException e) {
+			System.out.println(e);
 			e.printStackTrace();
-			throw new IllegalStateException(
-					"ClientAgent::checkServer:: Exception while getting data for zNode" + ELECTED_SERVER_PATH + e);
+			//throw new IllegalStateException(
+					//"ClientAgent::checkServer:: Exception while getting data for zNode" + ELECTED_SERVER_PATH + e);
 		}
+		return new String(serverName);
 
 	}
 
