@@ -361,6 +361,7 @@ public class ProcessNode implements Runnable {
 				data = zooKeeperService.getZooKeeper().getData(dataClientPath, false, null);
 				String strData = new String(data);
 				ConfigData nodeConfigData = gson.fromJson(strData, ConfigData.class);
+				nodeConfigData.setZnodePath(dataClientPath);
 				return nodeConfigData;
 			} catch (KeeperException | InterruptedException e) {
 				throw new IllegalStateException("Exception in readDataFromNode::  " + e);
