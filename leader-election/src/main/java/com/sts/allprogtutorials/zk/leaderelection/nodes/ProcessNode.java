@@ -177,6 +177,23 @@ public class ProcessNode implements Runnable {
 
 			final EventType eventType = event.getType();
 			System.out.println("Event Type:: "  + eventType);
+			//Changes for handling NodeChildChanged
+			if(EventType.NodeChildrenChanged.equals(eventType)) {
+				
+				Watcher.Event.EventType[] childNodeEvents = eventType.values();
+				System.out.println("nodeChildren changed evnt :: " + childNodeEvents);
+				for (Watcher.Event.EventType evt : childNodeEvents)
+				{
+					System.out.println("Recived event :: " + evt + "for nodePath");
+					if (EventType.NodeDeleted.equals(eventType)) {
+												
+					}
+					else if (EventType.NodeDeleted.equals(eventType)) {
+						
+					}
+				}
+				
+			}
 			if (EventType.NodeDeleted.equals(eventType)) {
 				// Leader died
 				if (event.getPath().equalsIgnoreCase(watchedNodePath)) {
@@ -248,7 +265,7 @@ public class ProcessNode implements Runnable {
 							znodePath.getQueueIds().forEach(queueId -> {
 								boolean found = false;
 								for (ConfigData node : runningConfigs) {
-									System.out.println("");
+									System.out.println("Running config nocde:: " + node);
 
 									if (node.getQueueIds().contains(queueId)) {
 										deleteQId(node, queueId);
