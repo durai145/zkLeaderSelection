@@ -95,7 +95,7 @@ public class ProcessNode implements Runnable {
 						}
 						List<ConfigData> watchedNodesString = getStaticNodeList();
 						watchedNodesString.forEach(node -> {
-							this.watchedDynamicNodePath = dynamicPath + node.getZnode().getHost();
+							this.watchedDynamicNodePath = dynamicPath + "/" + node.getZnode().getHost();
 							zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
 							LOG.info("Watch created on Znode  [ " + watchedDynamicNodePath + " ]");
 							
