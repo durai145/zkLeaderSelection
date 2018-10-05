@@ -98,9 +98,9 @@ public class ProcessNode implements Runnable {
 							this.watchedDynamicNodePath = dynamicPath + "/" + node.getZnode().getHost();
 							zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
 							LOG.info("Watch created on Znode  [ " + watchedDynamicNodePath + " ]");
-							
+
 						});
-						
+
 					} catch (KeeperException e) {
 
 						System.out.println(e);
@@ -176,23 +176,21 @@ public class ProcessNode implements Runnable {
 			}
 
 			final EventType eventType = event.getType();
-			System.out.println("Event Type:: "  + eventType);
-			//Changes for handling NodeChildChanged
-			if(EventType.NodeChildrenChanged.equals(eventType)) {
-				
+			System.out.println("Event Type:: " + eventType);
+			// Changes for handling NodeChildChanged
+			if (EventType.NodeChildrenChanged.equals(eventType)) {
+
 				Watcher.Event.EventType[] childNodeEvents = eventType.values();
 				System.out.println("nodeChildren changed evnt :: " + childNodeEvents);
-				for (Watcher.Event.EventType evt : childNodeEvents)
-				{
+				for (Watcher.Event.EventType evt : childNodeEvents) {
 					System.out.println("Recived event :: " + evt + "for nodePath");
 					if (EventType.NodeDeleted.equals(eventType)) {
-												
-					}
-					else if (EventType.NodeDeleted.equals(eventType)) {
-						
+
+					} else if (EventType.NodeDeleted.equals(eventType)) {
+
 					}
 				}
-				
+
 			}
 			if (EventType.NodeDeleted.equals(eventType)) {
 				// Leader died
@@ -237,14 +235,14 @@ public class ProcessNode implements Runnable {
 			if (EventType.NodeCreated.equals(eventType)) {
 				String newClient = event.getPath();
 				try {
-					
-					
+
 					ConfigData newConfigData = getStaticClientData(new ConfigData.zNodeInfo(newClient));// getClientData
 					System.out.println("newConfigData :: " + newConfigData);
 					String staticPath = newConfigData.getZnode().getStaticPath();
 					List<ConfigData> runningConfigs = getRunningNodeList();
 					List<ConfigData> staticConfig = getStaticNodeList();
-					Stat newStat = zooKeeperService.getZooKeeper().exists(newConfigData.getZnode().getDynamicPath(), true);
+					Stat newStat = zooKeeperService.getZooKeeper().exists(newConfigData.getZnode().getDynamicPath(),
+							true);
 					// "/static/client/app/qid"
 					// "/dynamic/client/app/qid"
 					staticConfig.forEach(znodePath -> {
@@ -276,7 +274,7 @@ public class ProcessNode implements Runnable {
 
 								}
 								if (!found)
-								    assignQueueId(newConfigData);
+									assignQueueId(newConfigData);
 							});
 						}
 
@@ -288,8 +286,8 @@ public class ProcessNode implements Runnable {
 		} // End
 
 		private void assignQueueId(ConfigData node) {
-			
-			System.out.println("QueueID is already  assigned for :: " + node  );
+
+			System.out.println("QueueID is already  assigned for :: " + node);
 			try {
 				Stat stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
 				if (stat == null) {
@@ -298,14 +296,15 @@ public class ProcessNode implements Runnable {
 
 						zooKeeperService.checkZNodeORCreate(nodeItem);
 					});
-					
+
 				}
 				stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
 				if (stat != null) {
 					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
 							stat.getVersion());
 				} else {
-					 //Stat stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
+					// Stat stat =
+					// zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
 					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
 							0);
 				}
@@ -314,7 +313,6 @@ public class ProcessNode implements Runnable {
 				throw new IllegalStateException("Exception in assignQueueId::  " + e);
 			}
 
-			
 		}
 
 		private ConfigData getStaticClientData(zNodeInfo zNodeInfo) throws KeeperException, InterruptedException {
@@ -360,8 +358,6 @@ public class ProcessNode implements Runnable {
 
 		}
 
-		
-
 		private List<ConfigData> getRunningNodeList() {
 
 			List<String> runningNodes = zooKeeperService.getChildren("/dynamic/G4CMONITOR", false);
@@ -400,13 +396,22 @@ public class ProcessNode implements Runnable {
 
 		public ConfigData readDataFromNode(String dataClientPath) throws KeeperException, InterruptedException {
 			byte[] data;
+			ConfigData nodeConfigData;
 
 			try {
 				data = zooKeeperService.getZooKeeper().getData(dataClientPath, false, null);
-				String strData = new String(data);
-				ConfigData nodeConfigData = gson.fromJson(strData, ConfigData.class);
+				System.out.println("Data in readDataFromNode::  recieved ::" + data + " for node:: " + dataClientPath);
+				if (data == null) {
+					nodeConfigData = new ConfigData();
+
+				} else {
+					String strData = new String(data);
+					nodeConfigData = gson.fromJson(strData, ConfigData.class);
+
+				}
 				nodeConfigData.setZnodePath(dataClientPath);
 				return nodeConfigData;
+
 			} catch (KeeperException | InterruptedException e) {
 				throw new IllegalStateException("Exception in readDataFromNode::  " + e);
 			}
@@ -414,6 +419,7 @@ public class ProcessNode implements Runnable {
 		}
 
 	}
+
 	public List<ConfigData> getStaticNodeList() {
 
 		List<String> staticNodes = zooKeeperService.getChildren("/static/G4CMONITOR", true);
