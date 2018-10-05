@@ -216,24 +216,26 @@ public class ProcessNode implements Runnable {
 
 					ConfigData newConfigData = getStaticClientData(new ConfigData.zNodeInfo(newClient));// getClientData
 					System.out.println("newConfigData :: " + newConfigData);
+					String staticPath = newConfigData.getZnode().getStaticPath();
 					List<ConfigData> runningConfigs = getRunningNodeList();
 					List<ConfigData> staticConfig = getStaticNodeList();
 					// "/static/client/app/qid"
 					// "/dynamic/client/app/qid"
 					staticConfig.forEach(znodePath -> {
 						System.out.println("FOREACH :: "+ znodePath);
-						int index = znodePath.toString().indexOf("/", 1);
-						String strZnode = znodePath.toString().substring(index);
+						
+						/*int index = znodePath.toString().indexOf("/", 1);
+						String strZnode = znodePath.toString().substring(index)
 
 						index = newConfigData.getZnodePath().toString().indexOf("/", 1);
-						String strNewZnodePath = newConfigData.getZnodePath().toString().substring(index);
-
-						System.out.println("strNewZnodePath:: " + strNewZnodePath);
-						System.out.println("strZnode:: " + strZnode);
-						if (strZnode.equals(strNewZnodePath)) {// fix client name
+						String strNewZnodePath = newConfigData.getZnodePath().toString().substring(index);*/
+						
+						System.out.println("znodePath:: " + znodePath);
+						System.out.println("staticPath:: " + staticPath);
+						if (znodePath.getZnode().getStaticPath().equals(staticPath)) {// fix client name
 							// node matches then find the queue id's supposed to be assigned to this node
 							for (ConfigData node : runningConfigs) {
-
+								System.out.println("");
 								node.getQueueIds().forEach(queueId -> {
 									if (node.getQueueIds().contains(queueId)) {
 										deleteQId(node, queueId);
