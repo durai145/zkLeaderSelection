@@ -22,6 +22,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sts.allprogtutorials.zk.leaderelection.main.ConfigData;
+import com.sts.allprogtutorials.zk.leaderelection.main.ConfigData.zNodeInfo;
 import com.sts.allprogtutorials.zk.utils.ZooKeeperService;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -160,7 +161,7 @@ public class ProcessNode implements Runnable {
 
 	public class ProcessNodeWatcher implements Watcher {
 
-		private static final String DATA_PATH = "/data/";
+		//private static final String DATA_PATH = "/data";
 
 		@Override
 		public void process(WatchedEvent event) {
@@ -188,7 +189,7 @@ public class ProcessNode implements Runnable {
 					String deadClient = event.getPath();
 
 					try {
-						ConfigData deadConfigData = getClientData(deadClient);
+						ConfigData deadConfigData = getClientData(new ConfigData.zNodeInfo(deadClient));
 						List<ConfigData> runningConfigs = getRunningNodeList();
 
 						deadConfigData.getQueueIds().forEach(queueId -> {
@@ -213,7 +214,8 @@ public class ProcessNode implements Runnable {
 				String newClient = event.getPath();
 				try {
 
-					ConfigData newConfigData = getClientData(newClient);// getClientData
+					ConfigData newConfigData = getClientData(new ConfigData.zNodeInfo(newClient));// getClientData
+					
 					List<ConfigData> runningConfigs = getRunningNodeList();
 					List<ConfigData> staticConfig = getStaticNodeList();
 					// "/static/client/app/qid"
@@ -335,10 +337,9 @@ public class ProcessNode implements Runnable {
 			return runningConfig;
 		}
 
-		private ConfigData getClientData(String deadClient) throws KeeperException, InterruptedException {
+		private ConfigData getClientData(zNodeInfo zNodeInfo) throws KeeperException, InterruptedException {
 
-			String dataClientPath = DATA_PATH + deadClient;
-			return readDataFromNode(dataClientPath);
+			return readDataFromNode(zNodeInfo.getDataPath());
 		}
 
 		public ConfigData readDataFromNode(String dataClientPath) throws KeeperException, InterruptedException {

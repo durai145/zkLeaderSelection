@@ -62,6 +62,8 @@ public class ConfigData {
 		String app;
 		String host;
 		String type;
+		
+		
 		public String getApp() {
 			return app;
 		}
@@ -79,6 +81,15 @@ public class ConfigData {
 		}
 		public void setType(String type) {
 			this.type = type;
+		}
+		
+		
+		public zNodeInfo(String znodePath) {
+			String[] nodes = znodePath.split("/");
+			this.app = nodes[1];
+			this.host = nodes[2];
+			this.type = nodes[3];
+			
 		}
 		
 		public String getPath() {
