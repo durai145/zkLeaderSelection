@@ -215,7 +215,7 @@ public class ProcessNode implements Runnable {
 				try {
 
 					ConfigData newConfigData = getStaticClientData(new ConfigData.zNodeInfo(newClient));// getClientData
-
+					System.out.println("newConfigData :: " + newConfigData);
 					List<ConfigData> runningConfigs = getRunningNodeList();
 					List<ConfigData> staticConfig = getStaticNodeList();
 					// "/static/client/app/qid"
