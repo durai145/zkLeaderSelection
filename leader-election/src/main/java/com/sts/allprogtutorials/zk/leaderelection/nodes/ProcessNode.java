@@ -93,9 +93,14 @@ public class ProcessNode implements Runnable {
 							System.out.println("Completed creating the  :: " + dynamicPath);
 
 						}
-						this.watchedDynamicNodePath = dynamicPath + "/GPIAPP004";
-						zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
-						LOG.info("Watch created on Znode  [ " + watchedDynamicNodePath + " ]");
+						List<ConfigData> watchedNodesString = getStaticNodeList();
+						watchedNodesString.forEach(node -> {
+							this.watchedDynamicNodePath = dynamicPath + node.getZnode().getHost();
+							zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
+							LOG.info("Watch created on Znode  [ " + watchedDynamicNodePath + " ]");
+							
+						});
+						
 					} catch (KeeperException e) {
 
 						System.out.println(e);
@@ -335,34 +340,7 @@ public class ProcessNode implements Runnable {
 
 		}
 
-		public List<ConfigData> getStaticNodeList() {
-
-			List<String> staticNodes = zooKeeperService.getChildren("/static/G4CMONITOR", true);
-			System.out.println("ZnodePathChildren :: " + staticNodes);
-			List<ConfigData> staticConfig = new ArrayList<>();
-			staticNodes.forEach(zpath -> {
-
-				try {
-					System.out.println("Node:: " + zpath);
-					ConfigData.zNodeInfo nodeTemp = new ConfigData.zNodeInfo("static", "G4CMONITOR", zpath);
-					System.out.println("nodTemp :: " + nodeTemp);
-					byte[] data = zooKeeperService.getZooKeeper().getData(nodeTemp.getStaticPath(), false, null);
-					if (data != null) {
-						String strData = new String(data);
-						System.out.println("Node:: " + strData);
-						ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
-						System.out.println("zconfigNodeData:: " + zConfigData);
-						zConfigData.setZnodePath(nodeTemp.getStaticPath());
-						// zConfigData.setStat(stat);
-						staticConfig.add(zConfigData);
-
-					}
-				} catch (Exception e) {
-					throw new IllegalStateException("Exception in getStaticNodeList::  " + e);
-				}
-			});
-			return staticConfig;
-		}
+		
 
 		private List<ConfigData> getRunningNodeList() {
 
@@ -415,6 +393,34 @@ public class ProcessNode implements Runnable {
 
 		}
 
+	}
+	public List<ConfigData> getStaticNodeList() {
+
+		List<String> staticNodes = zooKeeperService.getChildren("/static/G4CMONITOR", true);
+		System.out.println("ZnodePathChildren :: " + staticNodes);
+		List<ConfigData> staticConfig = new ArrayList<>();
+		staticNodes.forEach(zpath -> {
+
+			try {
+				System.out.println("Node:: " + zpath);
+				ConfigData.zNodeInfo nodeTemp = new ConfigData.zNodeInfo("static", "G4CMONITOR", zpath);
+				System.out.println("nodTemp :: " + nodeTemp);
+				byte[] data = zooKeeperService.getZooKeeper().getData(nodeTemp.getStaticPath(), false, null);
+				if (data != null) {
+					String strData = new String(data);
+					System.out.println("Node:: " + strData);
+					ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
+					System.out.println("zconfigNodeData:: " + zConfigData);
+					zConfigData.setZnodePath(nodeTemp.getStaticPath());
+					// zConfigData.setStat(stat);
+					staticConfig.add(zConfigData);
+
+				}
+			} catch (Exception e) {
+				throw new IllegalStateException("Exception in getStaticNodeList::  " + e);
+			}
+		});
+		return staticConfig;
 	}
 
 }
