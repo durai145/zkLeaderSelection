@@ -58,6 +58,7 @@ public class ConfigData {
 	}
 	
 	public static class zNodeInfo {
+		public zNodeInfo() {}
 		public zNodeInfo(String type, String app, String host) {
 			this.app = app;
 			this.host = host;
