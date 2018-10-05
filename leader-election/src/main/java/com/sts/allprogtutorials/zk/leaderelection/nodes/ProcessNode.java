@@ -273,11 +273,14 @@ public class ProcessNode implements Runnable {
 
 						zooKeeperService.checkZNodeORCreate(nodeItem);
 					});
+					
 				}
-				if (node.getStat() != null) {
+				stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
+				if (stat != null) {
 					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
-							node.getStat().getVersion());
+							stat.getVersion());
 				} else {
+					 //Stat stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
 					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
 							0);
 				}
