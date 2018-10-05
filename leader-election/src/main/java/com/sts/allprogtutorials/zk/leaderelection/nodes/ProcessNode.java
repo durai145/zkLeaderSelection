@@ -219,6 +219,7 @@ public class ProcessNode implements Runnable {
 					String staticPath = newConfigData.getZnode().getStaticPath();
 					List<ConfigData> runningConfigs = getRunningNodeList();
 					List<ConfigData> staticConfig = getStaticNodeList();
+					
 					// "/static/client/app/qid"
 					// "/dynamic/client/app/qid"
 					staticConfig.forEach(znodePath -> {
@@ -238,16 +239,19 @@ public class ProcessNode implements Runnable {
 							// node matches then find the queue id's supposed to be assigned to this node
 							System.out.println("Mathced znodePath and staticPath" + staticPath);
 							znodePath.getQueueIds().forEach(queueId -> {
+								boolean found = false;
 								for (ConfigData node : runningConfigs) {
 									System.out.println("");
 
 									if (node.getQueueIds().contains(queueId)) {
 										deleteQId(node, queueId);
-
+										found = true;
+										assignQueueId(node, queueId);
 									}
 
 								}
-								assignQueueId(newConfigData, queueId);
+								if (!found)
+								    assignQueueId(newConfigData);
 							});
 						}
 
@@ -257,6 +261,33 @@ public class ProcessNode implements Runnable {
 				}
 			}
 		} // End
+
+		private void assignQueueId(ConfigData node) {
+			
+			System.out.println("QueueID is assigned for :: " + node + "  assigned :: " + queueId);
+			try {
+				Stat stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
+				if (stat == null) {
+					List<String> nodeList = zooKeeperService.parseZNodePath(node.getZnode().getDataPath());
+					nodeList.forEach(nodeItem -> {
+
+						zooKeeperService.checkZNodeORCreate(nodeItem);
+					});
+				}
+				if (node.getStat() != null) {
+					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
+							node.getStat().getVersion());
+				} else {
+					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
+							0);
+				}
+
+			} catch (KeeperException | InterruptedException e) {
+				throw new IllegalStateException("Exception in assignQueueId::  " + e);
+			}
+
+			
+		}
 
 		private ConfigData getStaticClientData(zNodeInfo zNodeInfo) throws KeeperException, InterruptedException {
 
