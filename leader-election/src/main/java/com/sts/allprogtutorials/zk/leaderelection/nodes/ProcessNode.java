@@ -301,12 +301,13 @@ public class ProcessNode implements Runnable {
 					ConfigData.zNodeInfo nodeTemp = new ConfigData.zNodeInfo("static", "G4CMONITOR", zpath);
 					System.out.println("nodTemp :: " + nodeTemp);
 					byte[] data = zooKeeperService.getZooKeeper().getData(nodeTemp.getStaticPath(), false, null);
-					String strData = new String(data);
-					System.out.println("Node:: " + strData);
-					ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
-					System.out.println("zconfigNodeData:: " + zConfigData);
-					staticConfig.add(zConfigData);
-
+					if (data != null) {
+						String strData = new String(data);
+						System.out.println("Node:: " + strData);
+						ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
+						System.out.println("zconfigNodeData:: " + zConfigData);
+						staticConfig.add(zConfigData);
+					}
 				} catch (Exception e) {
 					throw new IllegalStateException("Exception in getStaticNodeList::  " + e);
 				}
@@ -326,19 +327,17 @@ public class ProcessNode implements Runnable {
 					ConfigData.zNodeInfo nodeTemp = new ConfigData.zNodeInfo("dynamic", "G4CMONITOR", zpath);
 					System.out.println("nodTemp :: " + nodeTemp);
 					byte[] data = zooKeeperService.getZooKeeper().getData(nodeTemp.getDynamicPath(), false, stat);
-					if(data == null)
-					{
-						System.out.println("data is null");
+					if (data != null) {
+
+						String strData = new String(data);
+						System.out.println("Node:: " + strData);
+						ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
+						System.out.println("zconfigNodeData:: " + zConfigData);
+
+						zConfigData.setZnodePath(zpath);
+						zConfigData.setStat(stat);
+						runningConfig.add(zConfigData);
 					}
-					String strData = new String(data);
-					System.out.println("Node:: " + strData);
-					ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
-					System.out.println("zconfigNodeData:: " + zConfigData);
-
-					zConfigData.setZnodePath(zpath);
-					zConfigData.setStat(stat);
-					runningConfig.add(zConfigData);
-
 				} catch (KeeperException | InterruptedException e) {
 					throw new IllegalStateException("Exception in getRunningNodeList::  " + e);
 				}
