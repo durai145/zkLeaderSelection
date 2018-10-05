@@ -214,15 +214,21 @@ public class ClientAgent implements Runnable {
 
 	public ConfigData readClientData(String dataClientPath) throws KeeperException, InterruptedException {
 		byte[] data;
-
+		ConfigData nodeConfigData = new ConfigData();
 		try {
+			
 			data = zookeeper.getData(dataClientPath, false, null);
+			if (data != null) {
 			String strData = new String(data);
-			ConfigData nodeConfigData = gson.fromJson(strData, ConfigData.class);
+			System.out.println("Dataa :: " + strData);
+			
+			nodeConfigData = gson.fromJson(strData, ConfigData.class);
 			return nodeConfigData;
+			}
 		} catch (KeeperException | InterruptedException e) {
 			throw new IllegalStateException("Exception in readDataFromNode::  " + e);
 		}
+		return null;
 
 	}
 
