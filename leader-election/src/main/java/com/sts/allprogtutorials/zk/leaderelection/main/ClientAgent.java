@@ -73,11 +73,7 @@ public class ClientAgent implements Runnable {
 				}
 				if (!exists) {
 					System.out.println("Exiting :: Static config doesnt exist for the host " + this.hostname);
-				} else {
-					byte[] data = null;
-					// now we need to create a dynamic node for this host for the server to watch
-					zookeeper.create("/dynamic" + "/" + this.hostname, data, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-				}
+				} 
 			}
 		} catch (KeeperException e) { // TODO Auto-generated catch block
 			e.printStackTrace();
