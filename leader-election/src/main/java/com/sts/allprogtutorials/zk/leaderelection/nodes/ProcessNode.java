@@ -62,7 +62,7 @@ public class ProcessNode implements Runnable {
 
 		int index = childNodePaths.indexOf(processNodePath.substring(processNodePath.lastIndexOf('/') + 1));
 		if (index == 0) {
-			if (LOG.isInfoEnabled()) {
+			if (true) {
 				InetAddress ip;
 				try {
 					ip = InetAddress.getLocalHost();
@@ -74,7 +74,7 @@ public class ProcessNode implements Runnable {
 					if (data != hostName) {
 						System.out.println("Error in setting the data for zNode" + ServerLeaderNodePath);
 					} else {
-						System.out.println("Data for zNode" + ServerLeaderNodePath + "set successfully to " + data);
+						System.out.println("Data for zNode " + ServerLeaderNodePath + "set successfully to " + data);
 					}
 					String dynamicPath = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/G4CMONITOR";
 					Stat dynamicStat;
@@ -89,6 +89,7 @@ public class ProcessNode implements Runnable {
 
 							this.watchedDynamicNodePath = dynamicPath + "/G4CMONITOR";
 							zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
+							LOG.info("Watch created on Znode  [ " + watchedDynamicNodePath + " ]");
 						}
 					} catch (KeeperException e) {
 
