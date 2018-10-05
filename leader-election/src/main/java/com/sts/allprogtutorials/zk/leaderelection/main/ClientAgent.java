@@ -236,7 +236,7 @@ public class ClientAgent implements Runnable {
 			System.out.println("Launching Thread ClientAgent");
 			Thread t = new Thread(client);
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(20000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
