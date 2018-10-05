@@ -189,6 +189,7 @@ public class ClientAgent implements Runnable {
 
 	@Override
 	public void run() {
+		System.out.println("myCurrentDataNodePath ::   " + myCurrentDataNodePath);
 		while (true) {
 			if (this.myCurrentDataNodePath != null) {
 				System.out.println("myCurrentDataNodePath" + myCurrentDataNodePath);
@@ -199,7 +200,7 @@ public class ClientAgent implements Runnable {
 						waitTime = clientData.getWaitTime();
 						System.out.println("Client " + this.hostname + "Processing Queues " + clientData.getQueueIds());
 					}
-					wait(waitTime);
+					Thread.sleep(waitTime);
 				} catch (KeeperException | InterruptedException e) {
 					throw new IllegalStateException(
 							"Exception in run:: unable to getData for " + this.myCurrentDataNodePath);
@@ -232,8 +233,10 @@ public class ClientAgent implements Runnable {
 		} else {
 			String url = argv[0];
 			ClientAgent client = new ClientAgent(url);
+			System.out.println("Launching Thread ClientAgent");
 			Thread t = new Thread(client);
 			t.start();
+			System.out.println("Thread Invoked");
 		}
 
 	}
