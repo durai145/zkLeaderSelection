@@ -222,7 +222,7 @@ public class ClientAgent implements Runnable {
 			String strData = new String(data);
 			System.out.println("Dataa :: " + strData);
 			
-			nodeConfigData = gson.fromJson(strData, ConfigData.class);
+			//nodeConfigData = gson.fromJson(strData, ConfigData.class);
 			return nodeConfigData;
 			}
 		} catch (KeeperException | InterruptedException e) {
