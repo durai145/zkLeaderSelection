@@ -90,10 +90,11 @@ public class ProcessNode implements Runnable {
 								zooKeeperService.checkZNodeORCreate(nodeItem);
 							});
 							System.out.println("Completed creating the  :: " + dynamicPath);	
-							this.watchedDynamicNodePath = dynamicPath;
-							zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
-							LOG.info("Watch created on Znode  [ " + watchedDynamicNodePath + " ]");
+							
 						}
+						this.watchedDynamicNodePath = dynamicPath;
+						zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
+						LOG.info("Watch created on Znode  [ " + watchedDynamicNodePath + " ]");
 					} catch (KeeperException e) {
 
 						System.out.println(e);
