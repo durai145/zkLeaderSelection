@@ -15,6 +15,8 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sts.allprogtutorials.zk.leaderelection.main.ConfigData.zNodeInfo;
+import com.sts.allprogtutorials.zk.leaderelection.nodes.ProcessNode.ProcessNodeWatcher;
+import com.sts.allprogtutorials.zk.utils.ZooKeeperService;
 
 public class ClientAgent implements Runnable {
 	ZooKeeper zookeeper;
@@ -22,6 +24,7 @@ public class ClientAgent implements Runnable {
 	private static final String ELECTED_SERVER_PATH = "/election/server";
 	private static final String CLIENT_APP_NAME = "G4CMONITOR";
 	private String myCurrentDataNodePath;
+	private ZooKeeperService zooKeeperService;
 	static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
 	public ClientAgent(String url) {
@@ -30,10 +33,12 @@ public class ClientAgent implements Runnable {
 			ip = InetAddress.getLocalHost();
 			this.hostname = ip.getHostName();
 			System.out.println("hostname :: " + this.hostname);
+
 			try {
-				    zookeeper = new ZooKeeper(url, 3000, null);
-				    System.out.println("Zookeper connection " + zookeeper);   
-				    findAndCreateZnode();
+				zooKeeperService = new ZooKeeperService(url, null);
+				zookeeper = zooKeeperService.getZooKeeper();
+				System.out.println("Zookeper connection " + zookeeper);
+				findAndCreateZnode();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -51,10 +56,10 @@ public class ClientAgent implements Runnable {
 
 			// checkServer is up
 			String serverName = checkServer();
-			
-			parentStat = zookeeper.exists("/static", false);
+
+			parentStat = zookeeper.exists("/static/G4CMONITOR", false);
 			if (parentStat != null) {
-				List<String> children = zookeeper.getChildren("/static", false);
+				List<String> children = zookeeper.getChildren("/static/G4CMONITOR", false);
 				for (String child : children) {
 					System.out.println("Child :: " + child);
 					exists = child.equals(this.hostname);
@@ -67,9 +72,9 @@ public class ClientAgent implements Runnable {
 				}
 				if (!exists) {
 					System.out.println("Exiting :: Static config doesnt exist for the host " + this.hostname);
-				}else {
+				} else {
 					byte[] data = null;
-					//now we need to create a dynamic node for this host for the server to watch
+					// now we need to create a dynamic node for this host for the server to watch
 					zookeeper.create("/dynamic" + "/" + this.hostname, data, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 				}
 			}
@@ -83,32 +88,38 @@ public class ClientAgent implements Runnable {
 
 		return exists;
 	}
-    
+
 	private void createDataNode(String serverName) throws KeeperException {
 		try {
-			zNodeInfo staticNodePath = new ConfigData.zNodeInfo("static", this.hostname, CLIENT_APP_NAME);
-			ConfigData staticConfig = readClientData(staticNodePath.getPath());
-			if (staticConfig != null)
-			{			    
-			    Stat dataNodeStat = zookeeper.exists(staticNodePath.getDataPath(), false);
-			    if (dataNodeStat == null) {
-				    String path = zookeeper.create(staticNodePath.getDataPath(), null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-				    if (path != null) {
-					   String ClientAppPath = zookeeper.create(path + this.hostname, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-					if (ClientAppPath != null) {
-						this.myCurrentDataNodePath = ClientAppPath;
-						}
-					} else {
-						System.out.println("Failed to create Znode = " + path + CLIENT_APP_NAME);
-					}
+			zNodeInfo staticNodePath = new ConfigData.zNodeInfo("static", CLIENT_APP_NAME, this.hostname);
+			ConfigData staticConfig = readClientData(staticNodePath.getStaticPath());
+			if (staticConfig != null) {
+				Stat dataNodeStat = zookeeper.exists(staticNodePath.getDynamicPath(), false);
+				if (dataNodeStat == null) {
 
+					List<String> allNodePath = zooKeeperService.parseZNodePath(staticNodePath.getDynamicPath());
+					// checkNode is exit
+					System.out.println("allNodePath Before removing " + allNodePath);
+					allNodePath.remove(allNodePath.size() - 1);
+					System.out.println("allNodePath After removing " + allNodePath);
+					allNodePath.forEach(nodeItem -> {
+
+						zooKeeperService.checkZNodeORCreate(nodeItem);
+					});
+					String path = zookeeper.create(staticNodePath.getDynamicPath(), null, Ids.OPEN_ACL_UNSAFE,
+							CreateMode.EPHEMERAL);
+					if (path != null) {
+						String ClientAppPath = zookeeper.create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+						System.out.println("Created Znode successfully :: " + ClientAppPath);
+
+					} else {
+						System.out.println("Failed to create Znode = " + staticNodePath.getDataPath());
+					}
 				} else {
-					System.out.println("Failed to create Znode = " + staticNodePath.getDataPath());
+					System.out.println(
+							" No Static Configuration available for the client " + staticNodePath.getDataPath());
 				}
-			} else {
-				System.out.println(" No Static Configuration available for the client " + staticNodePath.getDataPath());
 			}
-		
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			throw new IllegalStateException(

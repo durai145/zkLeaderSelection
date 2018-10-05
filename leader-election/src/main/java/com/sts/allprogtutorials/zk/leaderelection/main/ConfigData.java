@@ -92,7 +92,7 @@ public class ConfigData {
 			return "/data" + "/" + this.app + "/" + this.host;
 		}
 		public String getDynamicPath() {
-			return "/dynamic" + "/" + this.host;
+			return "/dynamic" + "/" + this.app + "/" + this.host;
 		}
 		@Override
 		public String toString() {
