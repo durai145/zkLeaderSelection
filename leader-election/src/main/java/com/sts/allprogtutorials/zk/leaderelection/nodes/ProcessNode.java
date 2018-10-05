@@ -53,7 +53,7 @@ public class ProcessNode implements Runnable {
 		zooKeeperService = new ZooKeeperService(zkURL, new ProcessNodeWatcher());
 	}
 
-	private void attemptForLeaderPosition() {
+	private void attemptForLeaderPosition() throws KeeperException, InterruptedException {
 
 		final List<String> childNodePaths = zooKeeperService.getChildren(LEADER_ELECTION_ROOT_NODE, false);
 
@@ -80,8 +80,9 @@ public class ProcessNode implements Runnable {
 					Stat dynamicStat;
 					System.out.println("going to create dynamic node path for watching :: " + dynamicPath);
 					try {
-						dynamicStat = zooKeeperService.getZooKeeper().exists(dynamicPath, false);
-						
+						 System.out.println("Inside Try for dynamic node creation");
+						 dynamicStat = zooKeeperService.getZooKeeper().exists(dynamicPath, false);
+						 System.out.println("Stat :: " + dynamicStat);
 						if (dynamicStat == null) {
 							List<String> nodeList = zooKeeperService.parseZNodePath(dynamicPath);
 							nodeList.forEach(nodeItem -> {
@@ -95,11 +96,13 @@ public class ProcessNode implements Runnable {
 						}
 					} catch (KeeperException e) {
 
-						e.printStackTrace();
+						System.out.println(e);
+						throw e;
 					} catch (InterruptedException e) {
 
-						e.printStackTrace();
-
+						System.out.println(e);
+						throw e;
+						
 					}
 				} catch (UnknownHostException e) {
 					System.out.println("attemptForLeaderPosition:: unable to retrieve Hostname");
@@ -143,7 +146,15 @@ public class ProcessNode implements Runnable {
 			LOG.debug("[Process: " + id + "] Process node created with path: " + processNodePath);
 		}
 
-		attemptForLeaderPosition();
+		try {
+			attemptForLeaderPosition();
+		} catch (KeeperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public class ProcessNodeWatcher implements Watcher {
@@ -162,7 +173,15 @@ public class ProcessNode implements Runnable {
 				// Leader died
 				if (event.getPath().equalsIgnoreCase(watchedNodePath)) {
 
-					attemptForLeaderPosition();
+					try {
+						attemptForLeaderPosition();
+					} catch (KeeperException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				} else {
 					// Client died
 					String deadClient = event.getPath();
