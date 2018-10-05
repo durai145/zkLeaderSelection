@@ -24,7 +24,7 @@ public class ClientAgent implements Runnable {
 	String hostname;
 	private static final String ELECTED_SERVER_PATH = "/election/server";
 	private static final String CLIENT_APP_NAME = "G4CMONITOR";
-	private String myCurrentDataNodePath;
+	private String staticMyCurrentNodePath;
 	// private ZooKeeperService zooKeeperService;
 	static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
@@ -34,7 +34,7 @@ public class ClientAgent implements Runnable {
 			ip = InetAddress.getLocalHost();
 			this.hostname = ip.getHostName();
 			System.out.println("hostname :: " + this.hostname);
-
+			this.staticMyCurrentNodePath = new zNodeInfo("/data/G4CMONITOR/"+this.hostname).getDataPath();
 			try {
 				// zooKeeperService = new ZooKeeperService(url, null);
 				zookeeper = new ZooKeeper(url, 3000, null);
@@ -189,13 +189,13 @@ public class ClientAgent implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("myCurrentDataNodePath ::   " + myCurrentDataNodePath);
+		System.out.println("myCurrentDataNodePath ::   " + staticMyCurrentNodePath);
 		while (true) {
-			if (this.myCurrentDataNodePath != null) {
-				System.out.println("myCurrentDataNodePath" + myCurrentDataNodePath);
+			if (this.staticMyCurrentNodePath != null) {
+				System.out.println("myCurrentDataNodePath" + staticMyCurrentNodePath);
 				try {
 					int waitTime = 5;
-					ConfigData clientData = readClientData(this.myCurrentDataNodePath);
+					ConfigData clientData = readClientData(this.staticMyCurrentNodePath);
 					if (clientData != null) {
 						waitTime = clientData.getWaitTime();
 						System.out.println("Client " + this.hostname + "Processing Queues " + clientData.getQueueIds());
@@ -203,7 +203,7 @@ public class ClientAgent implements Runnable {
 					Thread.sleep(waitTime);
 				} catch (KeeperException | InterruptedException e) {
 					throw new IllegalStateException(
-							"Exception in run:: unable to getData for " + this.myCurrentDataNodePath);
+							"Exception in run:: unable to getData for " + this.staticMyCurrentNodePath);
 				}
 
 			}
