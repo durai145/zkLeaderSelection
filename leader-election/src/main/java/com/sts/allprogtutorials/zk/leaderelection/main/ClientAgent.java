@@ -25,7 +25,7 @@ public class ClientAgent implements Runnable {
 	private static final String ELECTED_SERVER_PATH = "/election/server";
 	private static final String CLIENT_APP_NAME = "G4CMONITOR";
 	private String myCurrentDataNodePath;
-	//private ZooKeeperService zooKeeperService;
+	// private ZooKeeperService zooKeeperService;
 	static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
 	public ClientAgent(String url) {
@@ -36,8 +36,8 @@ public class ClientAgent implements Runnable {
 			System.out.println("hostname :: " + this.hostname);
 
 			try {
-				//zooKeeperService = new ZooKeeperService(url, null);
-				zookeeper = new ZooKeeper(url,3000,null);
+				// zooKeeperService = new ZooKeeperService(url, null);
+				zookeeper = new ZooKeeper(url, 3000, null);
 				System.out.println("Zookeper connection " + zookeeper);
 				findAndCreateZnode();
 			} catch (IOException e) {
@@ -106,12 +106,18 @@ public class ClientAgent implements Runnable {
 
 						checkZNodeORCreate(nodeItem);
 					});
-					String path = zookeeper.create(staticNodePath.getDynamicPath(), null, Ids.OPEN_ACL_UNSAFE,
-							CreateMode.EPHEMERAL);
-					if (path != null) {
-						System.out.println("Created Znode successfully :: " + path);
+					Stat nodeStat = zookeeper.exists(staticNodePath.getDynamicPath(), true);
+					if (nodeStat == null) {
+						String path = zookeeper.create(staticNodePath.getDynamicPath(), null, Ids.OPEN_ACL_UNSAFE,
+								CreateMode.EPHEMERAL);
+
+						if (path != null) {
+							System.out.println("Created Znode successfully :: " + path);
+						} else {
+							System.out.println("Failed to create Znode = " + staticNodePath.getDataPath());
+						}
 					} else {
-						System.out.println("Failed to create Znode = " + staticNodePath.getDataPath());
+						System.out.println("Node already exists");
 					}
 				} else {
 					System.out.println(
@@ -126,6 +132,7 @@ public class ClientAgent implements Runnable {
 		}
 
 	}
+
 	public List<String> parseZNodePath(String zNodPath) {
 		List<String> nodes = new ArrayList<>();
 		String[] dirs = zNodPath.split("/");
@@ -138,6 +145,7 @@ public class ClientAgent implements Runnable {
 		}
 		return nodes;
 	}
+
 	public void checkZNodeORCreate(String node) {
 		try {
 			System.out.println("checkZNodeORCreate::Node :: " + node);
@@ -157,7 +165,8 @@ public class ClientAgent implements Runnable {
 		}
 
 	}
-	private String checkServer()  {
+
+	private String checkServer() {
 
 		byte[] serverName = null;
 		Stat serverStat;
@@ -170,8 +179,9 @@ public class ClientAgent implements Runnable {
 		} catch (KeeperException | InterruptedException e) {
 			System.out.println(e);
 			e.printStackTrace();
-			//throw new IllegalStateException(
-					//"ClientAgent::checkServer:: Exception while getting data for zNode" + ELECTED_SERVER_PATH + e);
+			// throw new IllegalStateException(
+			// "ClientAgent::checkServer:: Exception while getting data for zNode" +
+			// ELECTED_SERVER_PATH + e);
 		}
 		return new String(serverName);
 
