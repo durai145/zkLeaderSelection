@@ -234,9 +234,10 @@ public class ProcessNode implements Runnable {
 						System.out.println("staticPath:: " + staticPath);
 						if (znodePath.getZnode().getStaticPath().equals(staticPath)) {// fix client name
 							// node matches then find the queue id's supposed to be assigned to this node
+							System.out.println("Mathced znodePath and staticPath" + staticPath );
 							for (ConfigData node : runningConfigs) {
 								System.out.println("");
-								node.getQueueIds().forEach(queueId -> {
+								znodePath.getQueueIds().forEach(queueId -> {
 									if (node.getQueueIds().contains(queueId)) {
 										deleteQId(node, queueId);
 										assignQueueId(newConfigData, queueId);
@@ -259,7 +260,7 @@ public class ProcessNode implements Runnable {
 
 		private void deleteQId(ConfigData node, String queueId) {
 			node.getQueueIds().remove(queueId);
-
+			System.out.println("QueueID is deleted for :: " + node + "  removed :: " +  queueId);
 			try {
 				zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
 						node.getStat().getVersion());
@@ -271,7 +272,7 @@ public class ProcessNode implements Runnable {
 
 		private void assignQueueId(ConfigData node, String queueId) {
 			node.getQueueIds().add(queueId);
-
+			System.out.println("QueueID is assigned for :: " + node + "  assigned :: " +  queueId);
 			try {
 				Stat stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
 				if (stat == null) {
