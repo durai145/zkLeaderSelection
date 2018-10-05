@@ -176,6 +176,7 @@ public class ProcessNode implements Runnable {
 			}
 
 			final EventType eventType = event.getType();
+			System.out.println("Event Type:: "  + eventType);
 			if (EventType.NodeDeleted.equals(eventType)) {
 				// Leader died
 				if (event.getPath().equalsIgnoreCase(watchedNodePath)) {
@@ -192,13 +193,14 @@ public class ProcessNode implements Runnable {
 				} else {
 					// Client died
 					String deadClient = event.getPath();
-
+					System.out.println("Dead Client is :: " + deadClient);
 					try {
 						ConfigData deadConfigData = getClientData(new ConfigData.zNodeInfo(deadClient));
 						List<ConfigData> runningConfigs = getRunningNodeList();
 
 						deadConfigData.getQueueIds().forEach(queueId -> {
 							for (ConfigData node : runningConfigs) {
+								System.out.println("QueueID:: " + queueId);
 								if (node.getQueueIds().size() + 1 < node.getMaxQueueSize()) {
 									assignQueueId(node, queueId);
 								}

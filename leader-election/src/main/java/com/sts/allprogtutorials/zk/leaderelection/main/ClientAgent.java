@@ -24,7 +24,7 @@ public class ClientAgent implements Runnable {
 	String hostname;
 	private static final String ELECTED_SERVER_PATH = "/election/server";
 	private static final String CLIENT_APP_NAME = "G4CMONITOR";
-	private String staticMyCurrentNodePath;
+	private String currentDataNodePath;
 	// private ZooKeeperService zooKeeperService;
 	static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
@@ -34,7 +34,7 @@ public class ClientAgent implements Runnable {
 			ip = InetAddress.getLocalHost();
 			this.hostname = ip.getHostName();
 			System.out.println("hostname :: " + this.hostname);
-			this.staticMyCurrentNodePath = new zNodeInfo("/data/G4CMONITOR/"+this.hostname).getDataPath();
+			this.currentDataNodePath = new zNodeInfo("/data/G4CMONITOR/"+this.hostname).getDataPath();
 			try {
 				// zooKeeperService = new ZooKeeperService(url, null);
 				zookeeper = new ZooKeeper(url, 3000, null);
@@ -189,21 +189,21 @@ public class ClientAgent implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("myCurrentDataNodePath ::   " + staticMyCurrentNodePath);
+		System.out.println("myCurrentDataNodePath ::   " + currentDataNodePath);
 		while (true) {
-			if (this.staticMyCurrentNodePath != null) {
-				System.out.println("myCurrentDataNodePath" + staticMyCurrentNodePath);
+			if (this.currentDataNodePath != null) {
+				System.out.println("myCurrentDataNodePath" + currentDataNodePath);
 				try {
 					int waitTime = 5;
-					ConfigData clientData = readClientData(this.staticMyCurrentNodePath);
+					ConfigData clientData = readClientData(this.currentDataNodePath);
 					if (clientData != null) {
 						waitTime = clientData.getWaitTime();
-						System.out.println("Client " + this.hostname + "Processing Queues " + clientData.getQueueIds());
+						System.out.println("Client " + this.hostname + " :: Processing Queues " + clientData.getQueueIds());
 					}
 					Thread.sleep(waitTime*1000);
 				} catch (KeeperException | InterruptedException e) {
 					throw new IllegalStateException(
-							"Exception in run:: unable to getData for " + this.staticMyCurrentNodePath);
+							"Exception in run:: unable to getData for " + this.currentDataNodePath);
 				}
 
 			}
