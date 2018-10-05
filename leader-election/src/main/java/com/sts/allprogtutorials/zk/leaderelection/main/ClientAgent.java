@@ -3,6 +3,7 @@ package com.sts.allprogtutorials.zk.leaderelection.main;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.zookeeper.CreateMode;
@@ -24,7 +25,7 @@ public class ClientAgent implements Runnable {
 	private static final String ELECTED_SERVER_PATH = "/election/server";
 	private static final String CLIENT_APP_NAME = "G4CMONITOR";
 	private String myCurrentDataNodePath;
-	private ZooKeeperService zooKeeperService;
+	//private ZooKeeperService zooKeeperService;
 	static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
 	public ClientAgent(String url) {
@@ -35,8 +36,8 @@ public class ClientAgent implements Runnable {
 			System.out.println("hostname :: " + this.hostname);
 
 			try {
-				zooKeeperService = new ZooKeeperService(url, null);
-				zookeeper = zooKeeperService.getZooKeeper();
+				//zooKeeperService = new ZooKeeperService(url, null);
+				zookeeper = new ZooKeeper(url,3000,null);
 				System.out.println("Zookeper connection " + zookeeper);
 				findAndCreateZnode();
 			} catch (IOException e) {
@@ -96,14 +97,14 @@ public class ClientAgent implements Runnable {
 				Stat dataNodeStat = zookeeper.exists(staticNodePath.getDynamicPath(), false);
 				if (dataNodeStat == null) {
 
-					List<String> allNodePath = zooKeeperService.parseZNodePath(staticNodePath.getDynamicPath());
+					List<String> allNodePath = parseZNodePath(staticNodePath.getDynamicPath());
 					// checkNode is exit
 					System.out.println("allNodePath Before removing " + allNodePath);
 					allNodePath.remove(allNodePath.size() - 1);
 					System.out.println("allNodePath After removing " + allNodePath);
 					allNodePath.forEach(nodeItem -> {
 
-						zooKeeperService.checkZNodeORCreate(nodeItem);
+						checkZNodeORCreate(nodeItem);
 					});
 					String path = zookeeper.create(staticNodePath.getDynamicPath(), null, Ids.OPEN_ACL_UNSAFE,
 							CreateMode.EPHEMERAL);
@@ -125,7 +126,37 @@ public class ClientAgent implements Runnable {
 		}
 
 	}
+	public List<String> parseZNodePath(String zNodPath) {
+		List<String> nodes = new ArrayList<>();
+		String[] dirs = zNodPath.split("/");
+		String parent = "";
+		for (String dir : dirs) {
+			if (dir != null && !dir.isEmpty()) {
+				parent = parent + "/" + dir;
+				nodes.add(parent);
+			}
+		}
+		return nodes;
+	}
+	public void checkZNodeORCreate(String node) {
+		try {
+			System.out.println("checkZNodeORCreate::Node :: " + node);
+			Stat nodeStat = zookeeper.exists(node, false);
+			System.out.println("Nodestat :: " + nodeStat);
+			if (nodeStat == null) {
+				String nodePath = zookeeper.create(node, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				System.out.println("NodePath Created = " + nodePath);
+			}
 
+		} catch (KeeperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 	private String checkServer() throws KeeperException, InterruptedException {
 
 		byte[] serverName = null;
