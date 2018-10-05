@@ -76,7 +76,7 @@ public class ProcessNode implements Runnable {
 					} else {
 						System.out.println("Data for zNode " + ServerLeaderNodePath + "set successfully to " + data);
 					}
-					String dynamicPath = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/G4CMONITOR" + "/GPIAPP004";
+					String dynamicPath = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/G4CMONITOR";
 					Stat dynamicStat;
 					System.out.println("going to create dynamic node path for watching :: " + dynamicPath);
 					try {
@@ -92,7 +92,7 @@ public class ProcessNode implements Runnable {
 							System.out.println("Completed creating the  :: " + dynamicPath);	
 							
 						}
-						this.watchedDynamicNodePath = dynamicPath;
+						this.watchedDynamicNodePath = dynamicPath + "/GPIAPP004";
 						zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
 						LOG.info("Watch created on Znode  [ " + watchedDynamicNodePath + " ]");
 					} catch (KeeperException e) {
