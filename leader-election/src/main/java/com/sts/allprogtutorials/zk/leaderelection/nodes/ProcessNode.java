@@ -237,13 +237,14 @@ public class ProcessNode implements Runnable {
 			if (EventType.NodeCreated.equals(eventType)) {
 				String newClient = event.getPath();
 				try {
-
+					
+					
 					ConfigData newConfigData = getStaticClientData(new ConfigData.zNodeInfo(newClient));// getClientData
 					System.out.println("newConfigData :: " + newConfigData);
 					String staticPath = newConfigData.getZnode().getStaticPath();
 					List<ConfigData> runningConfigs = getRunningNodeList();
 					List<ConfigData> staticConfig = getStaticNodeList();
-					
+					Stat newStat = zooKeeperService.getZooKeeper().exists(newConfigData.getZnode().getDynamicPath(), true);
 					// "/static/client/app/qid"
 					// "/dynamic/client/app/qid"
 					staticConfig.forEach(znodePath -> {
