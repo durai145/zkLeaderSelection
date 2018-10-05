@@ -221,7 +221,7 @@ public class ProcessNode implements Runnable {
 					// "/static/client/app/qid"
 					// "/dynamic/client/app/qid"
 					staticConfig.forEach(znodePath -> {
-
+						System.out.println("FOREACH :: "+ znodePath);
 						int index = znodePath.toString().indexOf("/", 1);
 						String strZnode = znodePath.toString().substring(index);
 
@@ -306,8 +306,11 @@ public class ProcessNode implements Runnable {
 						System.out.println("Node:: " + strData);
 						ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
 						System.out.println("zconfigNodeData:: " + zConfigData);
+						zConfigData.setZnodePath(nodeTemp.getStaticPath());
+						//zConfigData.setStat(stat);
 						staticConfig.add(zConfigData);
-					}
+						
+						}
 				} catch (Exception e) {
 					throw new IllegalStateException("Exception in getStaticNodeList::  " + e);
 				}
@@ -334,7 +337,7 @@ public class ProcessNode implements Runnable {
 						ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
 						System.out.println("zconfigNodeData:: " + zConfigData);
 
-						zConfigData.setZnodePath(zpath);
+						zConfigData.setZnodePath(nodeTemp.getDynamicPath());
 						zConfigData.setStat(stat);
 						runningConfig.add(zConfigData);
 					}
