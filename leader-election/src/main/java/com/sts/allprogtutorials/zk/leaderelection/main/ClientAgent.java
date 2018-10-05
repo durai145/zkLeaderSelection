@@ -78,12 +78,11 @@ public class ClientAgent implements Runnable {
 					zookeeper.create("/dynamic" + "/" + this.hostname, data, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 				}
 			}
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) { // TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new IllegalStateException(
-					"ClientAgent::findAndCreateZnode error while creating dynamic config from static config for clientNodes"
-							+ e);
 		}
 
 		return exists;

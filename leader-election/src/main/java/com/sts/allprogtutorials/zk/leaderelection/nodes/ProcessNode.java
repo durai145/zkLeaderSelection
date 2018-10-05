@@ -76,14 +76,27 @@ public class ProcessNode implements Runnable {
 					} else {
 						System.out.println("Data for zNode" + ServerLeaderNodePath + "set successfully to " + data);
 					}
-					final String dynamicPath = zooKeeperService.createNode(ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH,
-							false, false);
-					if (dynamicPath == ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH) {
-						this.watchedDynamicNodePath = dynamicPath;
-						zooKeeperService.watchNode(watchedDynamicNodePath, true);
-					} else {
-						System.out.println("attemptForLeaderPosition:: unable to create znode "
-								+ ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH);
+					String dynamicPath = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/G4CMONITOR";
+					Stat dynamicStat;
+					try {
+						dynamicStat = zooKeeperService.getZooKeeper().exists(dynamicPath, false);
+						if (dynamicStat == null) {
+							List<String> nodeList = zooKeeperService.parseZNodePath(dynamicPath);
+							nodeList.forEach(nodeItem -> {
+
+								zooKeeperService.checkZNodeORCreate(nodeItem);
+							});
+
+							this.watchedDynamicNodePath = dynamicPath + "/G4CMONITOR";
+							zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
+						}
+					} catch (KeeperException e) {
+
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+
+						e.printStackTrace();
+
 					}
 				} catch (UnknownHostException e) {
 					System.out.println("attemptForLeaderPosition:: unable to retrieve Hostname");
@@ -100,6 +113,7 @@ public class ProcessNode implements Runnable {
 				LOG.info("[Process: " + id + "] - Setting watch on node with path: " + watchedNodePath);
 			}
 			zooKeeperService.watchNode(watchedNodePath, true);
+
 		}
 	}
 
