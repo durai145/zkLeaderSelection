@@ -235,6 +235,12 @@ public class ClientAgent implements Runnable {
 			ClientAgent client = new ClientAgent(url);
 			System.out.println("Launching Thread ClientAgent");
 			Thread t = new Thread(client);
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			t.start();
 			System.out.println("Thread Invoked");
 		}
