@@ -200,7 +200,7 @@ public class ClientAgent implements Runnable {
 						waitTime = clientData.getWaitTime();
 						System.out.println("Client " + this.hostname + "Processing Queues " + clientData.getQueueIds());
 					}
-					Thread.sleep(waitTime);
+					Thread.sleep(waitTime*1000);
 				} catch (KeeperException | InterruptedException e) {
 					throw new IllegalStateException(
 							"Exception in run:: unable to getData for " + this.staticMyCurrentNodePath);
