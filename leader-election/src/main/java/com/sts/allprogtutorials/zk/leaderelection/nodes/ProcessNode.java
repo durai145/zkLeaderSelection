@@ -400,11 +400,12 @@ public class ProcessNode implements Runnable {
 
 			try {
 				data = zooKeeperService.getZooKeeper().getData(dataClientPath, false, null);
-				System.out.println("Data in readDataFromNode::  recieved ::" + data + " for node:: " + dataClientPath);
+				
 				if (data == null) {
 					nodeConfigData = new ConfigData();
 
 				} else {
+					System.out.println("Data in readDataFromNode::  recieved ::" + new String(data) + " for node:: " + dataClientPath);
 					String strData = new String(data);
 					nodeConfigData = gson.fromJson(strData, ConfigData.class);
 
