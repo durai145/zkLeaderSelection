@@ -29,8 +29,8 @@ public class ConfigData {
 		this.znodePath = znodePath;
 		if(znodePath != null)
 		{
-		   String[] nodes = znodePath.split("/");
-		   znode= new zNodeInfo(nodes[1],nodes[2],nodes[3]);
+		   //String[] nodes = znodePath;
+		   znode= new zNodeInfo(znodePath);
 		}
 	}
 	public int getWaitTime() {
@@ -86,9 +86,9 @@ public class ConfigData {
 		
 		public zNodeInfo(String znodePath) {
 			String[] nodes = znodePath.split("/");
-			this.app = nodes[1];
-			this.host = nodes[2];
-			this.type = nodes[3];
+			this.app = nodes[2];
+			this.host = nodes[3];
+			this.type = nodes[1];
 			
 		}
 		
