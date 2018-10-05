@@ -346,7 +346,7 @@ public class ProcessNode implements Runnable {
 
 		private List<ConfigData> getRunningNodeList() {
 
-			List<String> runningNodes = zooKeeperService.getChildren("/dynamic/G4CMONITOR", true);
+			List<String> runningNodes = zooKeeperService.getChildren("/dynamic/G4CMONITOR", false);
 			System.out.println("Running Nodes :: " + runningNodes);
 			List<ConfigData> runningConfig = new ArrayList<>();
 			runningNodes.forEach(zpath -> {
