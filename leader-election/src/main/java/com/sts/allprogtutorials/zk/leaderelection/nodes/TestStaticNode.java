@@ -20,8 +20,13 @@ public class TestStaticNode {
 	public static void main(String[] args) throws IOException {
 
 		// TODO Auto-generated method stub
-		zooKeeperService = new ZooKeeperService("18.235.45.11:2181,18.214.208.121:2181,35.175.71.81:2181", null);
-		getStaticNodeList();
+		String str = "{\"wait_time\":5,\"queue_ids\":[\"4\"],\"max_queue_size\":1,\"znode_path\":\"/static/G4CMONITOR/GPIAPP005\",\"znode\":{\"app\":\"G4CMONITOR\",\"host\":\"GPIAPP005\",\"type\":\"static\"}}";
+		ConfigData config = gson.fromJson(str, ConfigData.class);
+		System.out.println("COnfigDtaa retiurned :: " + config);
+	
+		//zooKeeperService = new ZooKeeperService("18.235.45.11:2181,18.214.208.121:2181,35.175.71.81:2181", null);
+		//getStaticNodeList();
+		
 	}
 
 	public static void getStaticNodeList() {
@@ -29,6 +34,7 @@ public class TestStaticNode {
 		List<String> staticNodes = zooKeeperService.getChildren("/static/G4CMONITOR", true);
 		System.out.println("ZnodePathChildren :: " + staticNodes);
 		List<ConfigData> staticConfig = new ArrayList<>();
+		
 		staticNodes.forEach(zpath -> {
 
 			try {

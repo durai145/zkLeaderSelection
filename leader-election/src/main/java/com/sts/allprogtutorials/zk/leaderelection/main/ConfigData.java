@@ -11,7 +11,7 @@ public class ConfigData {
 	int maxQueueSize ;
 	String znodePath;
 	Stat stat;
-	zNodeInfo znode;
+	transient zNodeInfo znode;
 	
 	public void setZnode(zNodeInfo znode) {
 		this.znode = znode;
@@ -30,6 +30,7 @@ public class ConfigData {
 	}
 	public void setZnodePath(String znodePath) {
 		this.znodePath = znodePath;
+		System.out.println("znodePath:: " + znodePath );
 		if(znodePath != null)
 		{
 		   //String[] nodes = znodePath;

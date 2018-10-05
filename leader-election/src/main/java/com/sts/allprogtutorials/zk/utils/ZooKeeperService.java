@@ -40,9 +40,10 @@ public class ZooKeeperService {
 		try {
 			
 			final Stat nodeStat =  zooKeeper.exists(node, watch);
+			String data =  "";
 			
 			if(nodeStat == null) {
-				createdNodePath = zooKeeper.create(node, new byte[0], Ids.OPEN_ACL_UNSAFE, (ephimeral ?  CreateMode.EPHEMERAL_SEQUENTIAL : CreateMode.PERSISTENT));
+				createdNodePath = zooKeeper.create(node, data.getBytes(), Ids.OPEN_ACL_UNSAFE, (ephimeral ?  CreateMode.EPHEMERAL_SEQUENTIAL : CreateMode.PERSISTENT));
 			} else {
 				createdNodePath = node;
 			}
@@ -119,7 +120,7 @@ public class ZooKeeperService {
 			Stat nodeStat = zooKeeper.exists(node, false);
 			System.out.println("Nodestat :: " + nodeStat);
 			if (nodeStat == null) {
-				String nodePath = zooKeeper.create(node, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				String nodePath = zooKeeper.create(node, "".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 				System.out.println("NodePath Created = " + nodePath);
 			}
 
