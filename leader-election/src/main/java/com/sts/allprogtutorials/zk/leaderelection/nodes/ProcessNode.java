@@ -222,30 +222,35 @@ public class ProcessNode implements Runnable {
 					// "/static/client/app/qid"
 					// "/dynamic/client/app/qid"
 					staticConfig.forEach(znodePath -> {
-						System.out.println("FOREACH :: "+ znodePath);
-						
-						/*int index = znodePath.toString().indexOf("/", 1);
-						String strZnode = znodePath.toString().substring(index)
+						System.out.println("FOREACH :: " + znodePath);
 
-						index = newConfigData.getZnodePath().toString().indexOf("/", 1);
-						String strNewZnodePath = newConfigData.getZnodePath().toString().substring(index);*/
-						
+						/*
+						 * int index = znodePath.toString().indexOf("/", 1); String strZnode =
+						 * znodePath.toString().substring(index)
+						 * 
+						 * index = newConfigData.getZnodePath().toString().indexOf("/", 1); String
+						 * strNewZnodePath = newConfigData.getZnodePath().toString().substring(index);
+						 */
+
 						System.out.println("znodePath:: " + znodePath);
 						System.out.println("staticPath:: " + staticPath);
 						if (znodePath.getZnode().getStaticPath().equals(staticPath)) {// fix client name
 							// node matches then find the queue id's supposed to be assigned to this node
-							System.out.println("Mathced znodePath and staticPath" + staticPath );
-							for (ConfigData node : runningConfigs) {
-								System.out.println("");
-								znodePath.getQueueIds().forEach(queueId -> {
+							System.out.println("Mathced znodePath and staticPath" + staticPath);
+							znodePath.getQueueIds().forEach(queueId -> {
+								for (ConfigData node : runningConfigs) {
+									System.out.println("");
+
 									if (node.getQueueIds().contains(queueId)) {
 										deleteQId(node, queueId);
-										assignQueueId(newConfigData, queueId);
+
 									}
 
-								});
-							}
+								}
+								assignQueueId(newConfigData, queueId);
+							});
 						}
+
 					});
 				} catch (KeeperException | InterruptedException e) {
 					throw new IllegalStateException("Exception ProcessNodeWatcher:: in handling NodeCreated Event" + e);
@@ -260,7 +265,7 @@ public class ProcessNode implements Runnable {
 
 		private void deleteQId(ConfigData node, String queueId) {
 			node.getQueueIds().remove(queueId);
-			System.out.println("QueueID is deleted for :: " + node + "  removed :: " +  queueId);
+			System.out.println("QueueID is deleted for :: " + node + "  removed :: " + queueId);
 			try {
 				zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
 						node.getStat().getVersion());
@@ -272,7 +277,7 @@ public class ProcessNode implements Runnable {
 
 		private void assignQueueId(ConfigData node, String queueId) {
 			node.getQueueIds().add(queueId);
-			System.out.println("QueueID is assigned for :: " + node + "  assigned :: " +  queueId);
+			System.out.println("QueueID is assigned for :: " + node + "  assigned :: " + queueId);
 			try {
 				Stat stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
 				if (stat == null) {
@@ -310,10 +315,10 @@ public class ProcessNode implements Runnable {
 						ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
 						System.out.println("zconfigNodeData:: " + zConfigData);
 						zConfigData.setZnodePath(nodeTemp.getStaticPath());
-						//zConfigData.setStat(stat);
+						// zConfigData.setStat(stat);
 						staticConfig.add(zConfigData);
-						
-						}
+
+					}
 				} catch (Exception e) {
 					throw new IllegalStateException("Exception in getStaticNodeList::  " + e);
 				}
