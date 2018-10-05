@@ -287,9 +287,13 @@ public class ProcessNode implements Runnable {
 						zooKeeperService.checkZNodeORCreate(nodeItem);
 					});
 				}
-
-				zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
-						node.getStat().getVersion());
+				if (node.getStat() != null) {
+					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
+							node.getStat().getVersion());
+				} else {
+					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
+							0);
+				}
 
 			} catch (KeeperException | InterruptedException e) {
 				throw new IllegalStateException("Exception in assignQueueId::  " + e);
