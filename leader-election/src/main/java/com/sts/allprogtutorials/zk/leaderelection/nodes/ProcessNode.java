@@ -76,7 +76,7 @@ public class ProcessNode implements Runnable {
 					} else {
 						System.out.println("Data for zNode " + ServerLeaderNodePath + "set successfully to " + data);
 					}
-					String dynamicPath = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/G4CMONITOR";
+					String dynamicPath = ELECTED_SERVER_LEADER_DYNAMIC_NODE_PATH + "/G4CMONITOR" + "/GPIAPP004";
 					Stat dynamicStat;
 					System.out.println("going to create dynamic node path for watching :: " + dynamicPath);
 					try {
