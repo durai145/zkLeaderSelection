@@ -13,6 +13,9 @@ public class ConfigData {
 	Stat stat;
 	zNodeInfo znode;
 	
+	public void setZnode(zNodeInfo znode) {
+		this.znode = znode;
+	}
 	public zNodeInfo getZnode() {
 		return znode;
 	}
