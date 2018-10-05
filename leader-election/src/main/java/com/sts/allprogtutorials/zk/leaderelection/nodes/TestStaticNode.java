@@ -22,7 +22,8 @@ public class TestStaticNode {
 		// TODO Auto-generated method stub
 		String str = "{\"wait_time\":5,\"queue_ids\":[\"4\"],\"max_queue_size\":1,\"znode_path\":\"/static/G4CMONITOR/GPIAPP005\",\"znode\":{\"app\":\"G4CMONITOR\",\"host\":\"GPIAPP005\",\"type\":\"static\"}}";
 		ConfigData config = gson.fromJson(str, ConfigData.class);
-		System.out.println("COnfigDtaa retiurned :: " + config);
+		System.out.println(config);
+		System.out.println("COnfigDataa retiurned :: " + config.getZnode().getPath());
 	
 		//zooKeeperService = new ZooKeeperService("18.235.45.11:2181,18.214.208.121:2181,35.175.71.81:2181", null);
 		//getStaticNodeList();
