@@ -81,17 +81,17 @@ public class ProcessNode implements Runnable {
 					Stat dynamicStat;
 					System.out.println("going to create dynamic node path for watching :: " + dynamicPath);
 					try {
-						 System.out.println("Inside Try for dynamic node creation");
-						 dynamicStat = zooKeeperService.getZooKeeper().exists(dynamicPath, false);
-						 System.out.println("Stat :: " + dynamicStat);
+						System.out.println("Inside Try for dynamic node creation");
+						dynamicStat = zooKeeperService.getZooKeeper().exists(dynamicPath, false);
+						System.out.println("Stat :: " + dynamicStat);
 						if (dynamicStat == null) {
 							List<String> nodeList = zooKeeperService.parseZNodePath(dynamicPath);
 							nodeList.forEach(nodeItem -> {
 								System.out.println("nodeITem :: " + nodeItem);
 								zooKeeperService.checkZNodeORCreate(nodeItem);
 							});
-							System.out.println("Completed creating the  :: " + dynamicPath);	
-							
+							System.out.println("Completed creating the  :: " + dynamicPath);
+
 						}
 						this.watchedDynamicNodePath = dynamicPath + "/GPIAPP004";
 						zooKeeperService.watchNode(this.watchedDynamicNodePath, true);
@@ -104,7 +104,7 @@ public class ProcessNode implements Runnable {
 
 						System.out.println(e);
 						throw e;
-						
+
 					}
 				} catch (UnknownHostException e) {
 					System.out.println("attemptForLeaderPosition:: unable to retrieve Hostname");
@@ -161,7 +161,7 @@ public class ProcessNode implements Runnable {
 
 	public class ProcessNodeWatcher implements Watcher {
 
-		//private static final String DATA_PATH = "/data";
+		// private static final String DATA_PATH = "/data";
 
 		@Override
 		public void process(WatchedEvent event) {
@@ -214,8 +214,8 @@ public class ProcessNode implements Runnable {
 				String newClient = event.getPath();
 				try {
 
-					ConfigData newConfigData = getClientData(new ConfigData.zNodeInfo(newClient));// getClientData
-					
+					ConfigData newConfigData = getStaticClientData(new ConfigData.zNodeInfo(newClient));// getClientData
+
 					List<ConfigData> runningConfigs = getRunningNodeList();
 					List<ConfigData> staticConfig = getStaticNodeList();
 					// "/static/client/app/qid"
@@ -249,6 +249,11 @@ public class ProcessNode implements Runnable {
 				}
 			}
 		} // End
+
+		private ConfigData getStaticClientData(zNodeInfo zNodeInfo) throws KeeperException, InterruptedException {
+
+			return readDataFromNode(zNodeInfo.getStaticPath());
+		}
 
 		private void deleteQId(ConfigData node, String queueId) {
 			node.getQueueIds().remove(queueId);
