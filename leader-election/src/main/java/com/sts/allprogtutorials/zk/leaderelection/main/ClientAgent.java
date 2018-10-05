@@ -108,9 +108,7 @@ public class ClientAgent implements Runnable {
 					String path = zookeeper.create(staticNodePath.getDynamicPath(), null, Ids.OPEN_ACL_UNSAFE,
 							CreateMode.EPHEMERAL);
 					if (path != null) {
-						String ClientAppPath = zookeeper.create(path, null, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-						System.out.println("Created Znode successfully :: " + ClientAppPath);
-
+						System.out.println("Created Znode successfully :: " + path);
 					} else {
 						System.out.println("Failed to create Znode = " + staticNodePath.getDataPath());
 					}
