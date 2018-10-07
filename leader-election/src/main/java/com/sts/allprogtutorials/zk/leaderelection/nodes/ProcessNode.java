@@ -373,13 +373,15 @@ public class ProcessNode implements Runnable {
 					if (data != null) {
 
 						String strData = new String(data);
-						System.out.println("Node:: " + strData);
-						ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
-						System.out.println("zconfigNodeData:: " + zConfigData);
+						if (!strData.isEmpty()) {
+							System.out.println("Node:: " + strData);
+							ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
+							System.out.println("zconfigNodeData:: " + zConfigData);
 
-						zConfigData.setZnodePath(nodeTemp.getDynamicPath());
-						zConfigData.setStat(stat);
-						runningConfig.add(zConfigData);
+							zConfigData.setZnodePath(nodeTemp.getDynamicPath());
+							zConfigData.setStat(stat);
+							runningConfig.add(zConfigData);
+						}
 					}
 				} catch (KeeperException | InterruptedException e) {
 					throw new IllegalStateException("Exception in getRunningNodeList::  " + e);
@@ -400,13 +402,20 @@ public class ProcessNode implements Runnable {
 
 			try {
 				data = zooKeeperService.getZooKeeper().getData(dataClientPath, false, null);
-				System.out.println("Data in readDataFromNode::  recieved ::" + data + " for node:: " + dataClientPath);
-				if (data == null) {
+				
+				if (data == null ) {
 					nodeConfigData = new ConfigData();
 
 				} else {
 					String strData = new String(data);
-					nodeConfigData = gson.fromJson(strData, ConfigData.class);
+					if (!strData.isEmpty()) {
+						nodeConfigData = new ConfigData();
+					} else {
+						System.out.println("Data in readDataFromNode::  recieved ::" + new String(data) + " for node:: "
+								+ dataClientPath);
+
+						nodeConfigData = gson.fromJson(strData, ConfigData.class);
+					}
 
 				}
 				nodeConfigData.setZnodePath(dataClientPath);
@@ -434,12 +443,14 @@ public class ProcessNode implements Runnable {
 				byte[] data = zooKeeperService.getZooKeeper().getData(nodeTemp.getStaticPath(), false, null);
 				if (data != null) {
 					String strData = new String(data);
-					System.out.println("Node:: " + strData);
-					ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
-					System.out.println("zconfigNodeData:: " + zConfigData);
-					zConfigData.setZnodePath(nodeTemp.getStaticPath());
-					// zConfigData.setStat(stat);
-					staticConfig.add(zConfigData);
+					if (!strData.isEmpty()) {
+						System.out.println("Node:: " + strData);
+						ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
+						System.out.println("zconfigNodeData:: " + zConfigData);
+						zConfigData.setZnodePath(nodeTemp.getStaticPath());
+						// zConfigData.setStat(stat);
+						staticConfig.add(zConfigData);
+					}
 
 				}
 			} catch (Exception e) {

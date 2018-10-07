@@ -104,7 +104,7 @@ public class ClientAgent implements Runnable {
 					});
 					Stat nodeStat = zookeeper.exists(staticNodePath.getDynamicPath(), true);
 					if (nodeStat == null) {
-						String path = zookeeper.create(staticNodePath.getDynamicPath(), null, Ids.OPEN_ACL_UNSAFE,
+						String path = zookeeper.create(staticNodePath.getDynamicPath(), "".getBytes(), Ids.OPEN_ACL_UNSAFE,
 								CreateMode.EPHEMERAL);
 
 						if (path != null) {
@@ -148,7 +148,7 @@ public class ClientAgent implements Runnable {
 			Stat nodeStat = zookeeper.exists(node, false);
 			System.out.println("Nodestat :: " + nodeStat);
 			if (nodeStat == null) {
-				String nodePath = zookeeper.create(node, null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				String nodePath = zookeeper.create(node, "".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 				System.out.println("NodePath Created = " + nodePath);
 			}
 

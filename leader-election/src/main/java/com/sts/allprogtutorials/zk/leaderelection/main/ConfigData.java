@@ -30,6 +30,7 @@ public class ConfigData {
 	}
 	public void setZnodePath(String znodePath) {
 		this.znodePath = znodePath;
+		System.out.println("znodePath:: " + znodePath );
 		if(znodePath != null)
 		{
 		   //String[] nodes = znodePath;
@@ -57,6 +58,7 @@ public class ConfigData {
 	}
 	
 	public static class zNodeInfo {
+		public zNodeInfo() {}
 		public zNodeInfo(String type, String app, String host) {
 			this.app = app;
 			this.host = host;
