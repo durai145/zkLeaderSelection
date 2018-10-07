@@ -8,10 +8,10 @@ public class ConfigData {
 	
 	int waitTime;
 	List<String> queueIds;
-	int maxQueueSize ;
+	int maxQueueSize;
 	String znodePath;
 	Stat stat;
-	zNodeInfo znode;
+	transient zNodeInfo znode;
 	
 	public void setZnode(zNodeInfo znode) {
 		this.znode = znode;

@@ -16,8 +16,6 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sts.allprogtutorials.zk.leaderelection.main.ConfigData.zNodeInfo;
-import com.sts.allprogtutorials.zk.leaderelection.nodes.ProcessNode.ProcessNodeWatcher;
-import com.sts.allprogtutorials.zk.utils.ZooKeeperService;
 
 public class ClientAgent implements Runnable {
 	ZooKeeper zookeeper;
