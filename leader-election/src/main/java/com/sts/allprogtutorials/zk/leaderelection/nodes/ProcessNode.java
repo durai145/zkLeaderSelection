@@ -348,7 +348,9 @@ public class ProcessNode implements Runnable {
 		}
 
 		private void assignQueueId(ConfigData node, String queueId) {
-			node.getQueueIds().add(queueId);
+			if (!node.getQueueIds().contains(queueId)) {
+				node.getQueueIds().add(queueId);
+			}
 			System.out.println("QueueID is assigned for :: " + node + "  assigned :: " + queueId);
 			try {
 				Stat stat = zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
