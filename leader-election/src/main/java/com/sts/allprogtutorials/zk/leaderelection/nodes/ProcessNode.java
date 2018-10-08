@@ -321,13 +321,19 @@ public class ProcessNode implements Runnable {
 		}
 
 		private void deleteQId(ConfigData node, String queueId) {
-			node.getQueueIds().remove(queueId);
-			System.out.println("QueueID is deleted for :: " + node + "  removed :: " + queueId);
-			try {
-				zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
-						node.getStat().getVersion());
-			} catch (KeeperException | InterruptedException e) {
-				throw new IllegalStateException("Exception in deleteQId::  " + e);
+			
+			if (checkDataNodeExist(node.getZnode())) {
+				node.getQueueIds().remove(queueId);
+				System.out.println("QueueID is deleted for :: " + node + "  removed :: " + queueId);
+
+				try {
+					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
+							node.getStat().getVersion());
+				} catch (KeeperException | InterruptedException e) {
+					throw new IllegalStateException("Exception in deleteQId::  " + e);
+				}
+			} else {
+				System.out.println("Node is not exists : No need to delete");
 			}
 
 		}
