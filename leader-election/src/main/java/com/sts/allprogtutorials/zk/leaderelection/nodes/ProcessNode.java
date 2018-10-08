@@ -370,7 +370,7 @@ public class ProcessNode implements Runnable {
 					ConfigData.zNodeInfo nodeTemp = new ConfigData.zNodeInfo("dynamic", "G4CMONITOR", zpath);
 					System.out.println("nodTemp :: " + nodeTemp);
 					
-					if (checkDataNodeExist(nodeTemp)) {
+					if (!checkDataNodeExist(nodeTemp)) {
 						runningConfig.add(getStaticClientData(nodeTemp));
 					} else {
 
