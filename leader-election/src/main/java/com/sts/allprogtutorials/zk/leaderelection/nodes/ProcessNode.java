@@ -369,7 +369,7 @@ public class ProcessNode implements Runnable {
 					System.out.println("Node:: " + zpath);
 					ConfigData.zNodeInfo nodeTemp = new ConfigData.zNodeInfo("dynamic", "G4CMONITOR", zpath);
 					System.out.println("nodTemp :: " + nodeTemp);
-					byte[] data = zooKeeperService.getZooKeeper().getData(nodeTemp.getDynamicPath(), false, stat);
+					byte[] data = zooKeeperService.getZooKeeper().getData(nodeTemp.getDataPath(), false, stat);
 					if (data != null) {
 
 						String strData = new String(data);
