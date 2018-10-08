@@ -225,7 +225,8 @@ public class ProcessNode implements Runnable {
 						});
 					} catch (KeeperException | InterruptedException e) {
 
-						// System.out.println("Exeption in handling deadClientData when Client Died");
+						// System.out.println("Exeption in handling
+						// deadClientData when Client Died");
 						throw new IllegalStateException("Exeption in handling deadClientData when Client Died" + e);
 
 					}
@@ -249,17 +250,24 @@ public class ProcessNode implements Runnable {
 						System.out.println("FOREACH :: " + znodePath);
 
 						/*
-						 * int index = znodePath.toString().indexOf("/", 1); String strZnode =
+						 * int index = znodePath.toString().indexOf("/", 1);
+						 * String strZnode =
 						 * znodePath.toString().substring(index)
 						 * 
-						 * index = newConfigData.getZnodePath().toString().indexOf("/", 1); String
-						 * strNewZnodePath = newConfigData.getZnodePath().toString().substring(index);
+						 * index =
+						 * newConfigData.getZnodePath().toString().indexOf("/",
+						 * 1); String strNewZnodePath =
+						 * newConfigData.getZnodePath().toString().substring(
+						 * index);
 						 */
 
 						System.out.println("znodePath:: " + znodePath);
 						System.out.println("staticPath:: " + staticPath);
-						if (znodePath.getZnode().getStaticPath().equals(staticPath)) {// fix client name
-							// node matches then find the queue id's supposed to be assigned to this node
+						if (znodePath.getZnode().getStaticPath().equals(staticPath)) {// fix
+																						// client
+																						// name
+							// node matches then find the queue id's supposed to
+							// be assigned to this node
 							System.out.println("Mathced znodePath and staticPath" + staticPath);
 							znodePath.getQueueIds().forEach(queueId -> {
 								boolean found = false;
@@ -304,7 +312,8 @@ public class ProcessNode implements Runnable {
 							stat.getVersion());
 				} else {
 					// Stat stat =
-					// zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(), false);
+					// zooKeeperService.getZooKeeper().exists(node.getZnode().getDataPath(),
+					// false);
 					zooKeeperService.getZooKeeper().setData(node.getZnode().getDataPath(), gson.toJson(node).getBytes(),
 							0);
 				}
@@ -321,7 +330,7 @@ public class ProcessNode implements Runnable {
 		}
 
 		private void deleteQId(ConfigData node, String queueId) {
-			
+
 			if (checkDataNodeExist(node.getZnode())) {
 				node.getQueueIds().remove(queueId);
 				System.out.println("QueueID is deleted for :: " + node + "  removed :: " + queueId);
@@ -375,7 +384,7 @@ public class ProcessNode implements Runnable {
 					System.out.println("runningNodes.Node:: " + zpath);
 					ConfigData.zNodeInfo nodeTemp = new ConfigData.zNodeInfo("dynamic", "G4CMONITOR", zpath);
 					System.out.println("nodTemp :: " + nodeTemp);
-					
+
 					if (!checkDataNodeExist(nodeTemp)) {
 						runningConfig.add(getStaticClientData(nodeTemp));
 					} else {
@@ -432,8 +441,8 @@ public class ProcessNode implements Runnable {
 			System.out.println("dataClientPath::[" + dataClientPath + "]");
 			try {
 				data = zooKeeperService.getZooKeeper().getData(dataClientPath, false, null);
-				
-				if (data == null ) {
+
+				if (data == null) {
 					nodeConfigData = new ConfigData();
 
 				} else {
