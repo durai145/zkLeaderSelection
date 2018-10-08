@@ -408,7 +408,7 @@ public class ProcessNode implements Runnable {
 
 				} else {
 					String strData = new String(data);
-					if (!strData.isEmpty()) {
+					if (strData.isEmpty()) {
 						nodeConfigData = new ConfigData();
 					} else {
 						System.out.println("Data in readDataFromNode::  recieved ::" + new String(data) + " for node:: "
