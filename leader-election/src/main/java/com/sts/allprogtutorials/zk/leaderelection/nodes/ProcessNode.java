@@ -398,6 +398,7 @@ public class ProcessNode implements Runnable {
 		}
 
 		private boolean checkDataNodeExist(zNodeInfo nodeTemp) {
+			System.out.println("in checkDataNodeExist [" + nodeTemp.getDataPath() + "]");
 			Stat stat;
 			try {
 				stat = zooKeeperService.getZooKeeper().exists(nodeTemp.getDataPath(), false);
