@@ -397,13 +397,19 @@ public class ProcessNode implements Runnable {
 			return runningConfig;
 		}
 
-		private boolean checkDataNodeExist(zNodeInfo nodeTemp) throws KeeperException, InterruptedException {
-			Stat stat = zooKeeperService.getZooKeeper().exists(nodeTemp.getDataPath(), false);
-			if (stat == null) {
+		private boolean checkDataNodeExist(zNodeInfo nodeTemp) {
+			Stat stat;
+			try {
+				stat = zooKeeperService.getZooKeeper().exists(nodeTemp.getDataPath(), false);
+				if (stat == null) {
+					return false;
+				}
+
+				return true;
+			} catch (KeeperException | InterruptedException e) {
 				return false;
 			}
 
-			return true;
 		}
 
 		private ConfigData getClientData(zNodeInfo zNodeInfo) throws KeeperException, InterruptedException {
