@@ -366,21 +366,27 @@ public class ProcessNode implements Runnable {
 			runningNodes.forEach(zpath -> {
 				try {
 					Stat stat = null;
-					System.out.println("Node:: " + zpath);
+					System.out.println("runningNodes.Node:: " + zpath);
 					ConfigData.zNodeInfo nodeTemp = new ConfigData.zNodeInfo("dynamic", "G4CMONITOR", zpath);
 					System.out.println("nodTemp :: " + nodeTemp);
-					byte[] data = zooKeeperService.getZooKeeper().getData(nodeTemp.getDataPath(), false, stat);
-					if (data != null) {
+					
+					if (checkDataNodeExist(nodeTemp)) {
+						runningConfig.add(getStaticClientData(nodeTemp));
+					} else {
 
-						String strData = new String(data);
-						if (!strData.isEmpty()) {
-							System.out.println("Node:: " + strData);
-							ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
-							System.out.println("zconfigNodeData:: " + zConfigData);
+						byte[] data = zooKeeperService.getZooKeeper().getData(nodeTemp.getDataPath(), false, stat);
+						if (data != null) {
 
-							zConfigData.setZnodePath(nodeTemp.getDynamicPath());
-							zConfigData.setStat(stat);
-							runningConfig.add(zConfigData);
+							String strData = new String(data);
+							if (!strData.isEmpty()) {
+								System.out.println("Node:: " + strData);
+								ConfigData zConfigData = gson.fromJson(strData, ConfigData.class);
+								System.out.println("zconfigNodeData:: " + zConfigData);
+
+								zConfigData.setZnodePath(nodeTemp.getDynamicPath());
+								zConfigData.setStat(stat);
+								runningConfig.add(zConfigData);
+							}
 						}
 					}
 				} catch (KeeperException | InterruptedException e) {
@@ -389,6 +395,15 @@ public class ProcessNode implements Runnable {
 			});
 			System.out.println("RunningConfig :: " + runningConfig);
 			return runningConfig;
+		}
+
+		private boolean checkDataNodeExist(zNodeInfo nodeTemp) throws KeeperException, InterruptedException {
+			Stat stat = zooKeeperService.getZooKeeper().exists(nodeTemp.getDataPath(), false);
+			if (stat == null) {
+				return false;
+			}
+
+			return true;
 		}
 
 		private ConfigData getClientData(zNodeInfo zNodeInfo) throws KeeperException, InterruptedException {
