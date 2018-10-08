@@ -423,7 +423,7 @@ public class ProcessNode implements Runnable {
 		public ConfigData readDataFromNode(String dataClientPath) throws KeeperException, InterruptedException {
 			byte[] data;
 			ConfigData nodeConfigData;
-
+			System.out.println("dataClientPath::[" + dataClientPath + "]");
 			try {
 				data = zooKeeperService.getZooKeeper().getData(dataClientPath, false, null);
 				
