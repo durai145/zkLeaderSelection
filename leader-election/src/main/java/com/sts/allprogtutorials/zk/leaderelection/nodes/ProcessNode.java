@@ -403,11 +403,13 @@ public class ProcessNode implements Runnable {
 			try {
 				stat = zooKeeperService.getZooKeeper().exists(nodeTemp.getDataPath(), false);
 				if (stat == null) {
+					System.out.println("Stat is null: retrun  false");
 					return false;
 				}
 
 				return true;
 			} catch (KeeperException | InterruptedException e) {
+				System.out.println(e);
 				return false;
 			}
 
